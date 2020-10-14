@@ -11,3 +11,7 @@ audio:
   hop_length: 256
   fmin: 0
   fmax: 8000
+
+model:
+  lstm_dim: 256
+  conv_dim: 256

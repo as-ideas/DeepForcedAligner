@@ -68,7 +68,8 @@ def collate_dataset(batch: List[dict]) -> torch.tensor:
     mels = pad_sequence(mels, batch_first=True, padding_value=0)
     tokens_len = torch.tensor([b['tokens_len'] for b in batch]).long()
     mel_len = torch.tensor([b['mel_len'] for b in batch]).long()
-    return {'tokens': tokens, 'mels': mels, 'tokens_len': tokens_len, 'mel_len': mel_len}
+    return {'tokens': tokens, 'mels': mels,
+            'tokens_len': tokens_len, 'mel_len': mel_len}
 
 
 def new_dataloader(dataset_path: Path, mel_dir: Path,

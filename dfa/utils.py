@@ -1,8 +1,7 @@
+import yaml
 import pickle
 from pathlib import Path
 from typing import Dict, List, Any, Union
-
-import yaml
 
 
 def read_metafile(path: str) -> Dict[str, str]:
