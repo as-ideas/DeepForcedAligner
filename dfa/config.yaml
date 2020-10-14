@@ -1,0 +1,12 @@
+audio:
+  sample_rate: 22050
+  n_filters: 1024
+  n_mels: 80
+  win_length: 1024
+  hop_length: 256
+  fmin: 0
+  fmax: 8000
+
+paths:
+  data_dir: /tmp/dfa_data
+  checkpoint_dir: /tmp/dfa_ckp
