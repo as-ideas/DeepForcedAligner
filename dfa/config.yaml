@@ -13,5 +13,5 @@ audio:
   fmax: 8000
 
 model:
-  lstm_dim: 256
-  conv_dim: 256
+  lstm_dim: 128
+  conv_dim: 64

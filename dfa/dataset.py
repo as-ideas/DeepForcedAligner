@@ -68,7 +68,7 @@ def collate_dataset(batch: List[dict]) -> torch.tensor:
     mels = pad_sequence(mels, batch_first=True, padding_value=0)
     tokens_len = torch.tensor([b['tokens_len'] for b in batch]).long()
     mel_len = torch.tensor([b['mel_len'] for b in batch]).long()
-    return {'tokens': tokens, 'mels': mels,
+    return {'tokens': tokens, 'mel': mels,
             'tokens_len': tokens_len, 'mel_len': mel_len}
 
 
@@ -84,11 +84,3 @@ def new_dataloader(dataset_path: Path, mel_dir: Path,
                       sampler=BinnedLengthSampler(mel_lens=mel_lens, batch_size=batch_size, bin_size=batch_size*3),
                       num_workers=0,
                       pin_memory=True)
-
-
-if __name__ == '__main__':
-    config = read_config('config.yaml')
-    paths = Paths(**config['paths'])
-    dataloader = new_dataloader(paths.data_dir / 'dataset.pkl', paths.mel_dir, paths.token_dir)
-    for i, b in enumerate(dataloader):
-        print(f'{i}, {b}')
