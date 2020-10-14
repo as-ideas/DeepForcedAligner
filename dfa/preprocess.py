@@ -33,7 +33,7 @@ class Preprocessor:
         tokens = torch.tensor(tokens).long()
         torch.save(mel, self.paths.mel_dir / f'{item_id}.pt')
         torch.save(tokens, self.paths.token_dir / f'{item_id}.pt')
-        return {'item_id': item_id, 'tokens_len': tokens.size(0), 'mel_len': mel.size(1)}
+        return {'item_id': item_id, 'tokens_len': tokens.size(0), 'mel_len': mel.size(0)}
 
 
 if __name__ == '__main__':

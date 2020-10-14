@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Union
 
 import torch
+from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 
 from dfa.paths import Paths
@@ -26,16 +28,32 @@ class AlignerDataset(Dataset):
         return len(self.item_ids)
 
 
-def new_aligner_dataset(dataset_path: Path, mel_dir: Path, token_dir: Path) -> AlignerDataset:
+def collate_dataset(batch: List[dict]) -> torch.tensor:
+    tokens = [b['tokens'] for b in batch]
+    tokens = pad_sequence(tokens, batch_first=True, padding_value=0)
+    mels = [b['mel'] for b in batch]
+    mels = pad_sequence(mels, batch_first=True, padding_value=0)
+    tokens_len = torch.tensor([b['tokens_len'] for b in batch]).long()
+    mel_len = torch.tensor([b['mel_len'] for b in batch]).long()
+    return {'tokens': tokens, 'mels': mels, 'tokens_len': tokens_len, 'mel_len': mel_len}
+
+
+def new_dataloader(dataset_path: Path, mel_dir: Path,
+                   token_dir: Path, batch_size=32) -> DataLoader:
     dataset = unpickle_binary(dataset_path)
     item_ids = [d['item_id'] for d in dataset]
-    return AlignerDataset(item_ids=item_ids, mel_dir=mel_dir, token_dir=token_dir)
+    aligner_dataset = AlignerDataset(item_ids=item_ids, mel_dir=mel_dir, token_dir=token_dir)
+    return DataLoader(aligner_dataset,
+                      collate_fn=collate_dataset,
+                      batch_size=batch_size,
+                      sampler=None,
+                      num_workers=0,
+                      pin_memory=True)
 
 
 if __name__ == '__main__':
     config = read_config('config.yaml')
     paths = Paths(**config['paths'])
-    aligner_dataset = new_aligner_dataset(paths.data_dir / 'dataset.pkl', paths.mel_dir, paths.token_dir)
-
-    for i, b in enumerate(aligner_dataset):
-        print(f'{i}, {b.keys()}')
+    dataloader = new_dataloader(paths.data_dir / 'dataset.pkl', paths.mel_dir, paths.token_dir)
+    for i, b in enumerate(dataloader):
+        print(f'{i}, {b}')

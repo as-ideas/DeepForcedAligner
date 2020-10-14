@@ -38,6 +38,7 @@ class Audio:
             n_fft=self.n_filters,
             n_mels=self.n_mels,
             fmin=self.fmin)
+        mel = mel.T
         return self.normalize(mel)
 
     @staticmethod

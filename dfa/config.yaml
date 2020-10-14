@@ -1,3 +1,8 @@
+
+paths:
+  data_dir: /tmp/dfa_data
+  checkpoint_dir: /tmp/dfa_checkpoints
+
 audio:
   sample_rate: 22050
   n_filters: 1024
@@ -6,7 +11,3 @@ audio:
   hop_length: 256
   fmin: 0
   fmax: 8000
-
-paths:
-  data_dir: /tmp/dfa_data
-  checkpoint_dir: /tmp/dfa_ckp
