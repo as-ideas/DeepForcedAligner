@@ -1,5 +1,4 @@
 import argparse
-from typing import Tuple
 
 import torch
 from torch import optim
@@ -40,7 +39,7 @@ if __name__ == '__main__':
     ctc_loss = CTCLoss()
     tokenizer = Tokenizer(symbols)
     dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
-                                token_dir=paths.token_dir, batch_size=4)
+                                token_dir=paths.token_dir, batch_size=16)
 
     for epoch in range(1, 1000):
         for i, batch in enumerate(dataloader):
@@ -68,6 +67,3 @@ if __name__ == '__main__':
             'config': config,
             'symbols': symbols,
         }, latest_checkpoint)
-
-    checkpoint = torch.load(paths.checkpoint_dir / 'latest_model.pt')
-    print(checkpoint['symbols'])

@@ -39,7 +39,7 @@ class Preprocessor:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--path', help='Points to the dataset path containing wavs and metafile.')
-    parser.add_argument('--config', '-c', default='config.yaml', help='Points to the config file.')
+    parser.add_argument('--config', '-c', required=True, help='Points to the config file.')
     parser.add_argument('--num_workers', '-w', metavar='N', type=int, default=cpu_count() - 1,
                         help='The number of worker threads to use for preprocessing')
     args = parser.parse_args()

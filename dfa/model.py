@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class BatchNormConv(nn.Module):
 
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int, dropout=0.5):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int):
         super().__init__()
         self.conv = nn.Conv1d(
             in_channels, out_channels, kernel_size,
@@ -49,3 +49,13 @@ class Aligner(torch.nn.Module):
 
     def get_step(self):
         return self.step.data.item()
+
+    @classmethod
+    def from_checkpoint(cls, checkpoint: dict) -> 'Aligner':
+        config = checkpoint['config']
+        symbols = checkpoint['symbols']
+        model = Aligner(n_mels=config['audio']['n_mels'],
+                        num_symbols=len(symbols) + 1,
+                        **config['model'])
+        model.load_state_dict(checkpoint['model'])
+        return model

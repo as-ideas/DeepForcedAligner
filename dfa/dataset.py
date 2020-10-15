@@ -9,8 +9,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
 
-from dfa.paths import Paths
-from dfa.utils import unpickle_binary, read_config
+from dfa.utils import unpickle_binary
 
 
 class AlignerDataset(Dataset):
@@ -81,6 +80,7 @@ def new_dataloader(dataset_path: Path, mel_dir: Path,
     return DataLoader(aligner_dataset,
                       collate_fn=collate_dataset,
                       batch_size=batch_size,
-                      sampler=BinnedLengthSampler(mel_lens=mel_lens, batch_size=batch_size, bin_size=batch_size*3),
+                      sampler=BinnedLengthSampler(mel_lens=mel_lens, batch_size=batch_size,
+                                                  bin_size=batch_size*3),
                       num_workers=0,
                       pin_memory=True)
