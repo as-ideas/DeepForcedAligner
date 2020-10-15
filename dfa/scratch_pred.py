@@ -2,14 +2,9 @@ from pathlib import Path
 
 import torch
 
-import numpy as np
-from scipy.sparse import coo_matrix
-from scipy.sparse.csgraph._shortest_path import dijkstra
-import torch
 from dfa.audio import Audio
 from dfa.model import Aligner
 from dfa.text import Tokenizer
-from dfa.utils import read_metafile
 
 if __name__ == '__main__':
 
@@ -29,6 +24,8 @@ if __name__ == '__main__':
     mel = torch.tensor(mel).float().unsqueeze(0)
 
     pred = model(mel)
+
+    pred[:, :, 0] = -9999 # remove pad pred
     pred = pred[0].max(1)[1].detach().cpu().numpy().tolist()
     pred_text = tokenizer.decode(pred)
 

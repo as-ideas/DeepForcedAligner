@@ -5,6 +5,7 @@ class Tokenizer:
 
     def __init__(self, symbols: List[str], pad_token='_') -> None:
         self.symbols = symbols
+        self.pad_token = pad_token
         self.idx_to_token = {i: s for i, s in enumerate(symbols, start=1)}
         self.idx_to_token[0] = pad_token
         self.token_to_idx = {s: i for i, s in self.idx_to_token.items()}
