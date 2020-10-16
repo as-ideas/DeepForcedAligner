@@ -50,14 +50,14 @@ if __name__ == '__main__':
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optim.step()
-            print(f'{i} / {len(dataloader)} loss: {loss.item()}')
-
-            first_tar = tokens[0].detach().cpu().numpy().tolist()
-            first_pred = pred.transpose(0, 1)[0].max(1)[1].detach().cpu().numpy().tolist()
-            text = tokenizer.decode(first_pred)
-            tar_text = tokenizer.decode(first_tar)
-            print(text[:100])
-            print(tar_text[:100])
+            if i % 100 == 0:
+                print(f'{i} / {len(dataloader)} loss: {loss.item()}')
+                first_tar = tokens[0].detach().cpu().numpy().tolist()
+                first_pred = pred.transpose(0, 1)[0].max(1)[1].detach().cpu().numpy().tolist()
+                text = tokenizer.decode(first_pred)
+                tar_text = tokenizer.decode(first_tar)
+                print(text[:100])
+                print(tar_text[:100])
 
         latest_checkpoint = paths.checkpoint_dir / 'latest_model.pt'
         print(f'Saving checkpoint to {latest_checkpoint}')
