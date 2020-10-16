@@ -1,5 +1,5 @@
 import argparse
-
+import numpy as np
 import torch
 from torch import optim
 from torch.nn import CTCLoss
@@ -18,6 +18,15 @@ def to_device(batch: dict, device: torch.device) -> tuple:
                                        tokens_len.to(device), mel_len.to(device)
     return tokens, mel, tokens_len, mel_len
 
+
+def char_error(pred: torch.tensor, target: torch.tensor) -> float:
+    bs = pred.size(0)
+    sum_diff = 0
+    pred = pred.detach().cpu().numpy()
+    target = pred.detach().cpu().numpy()
+    for i in bs:
+        sum_diff += len(np.setdiff1d(pred[i], target[i]))
+    return sum_diff / bs
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
@@ -42,6 +51,7 @@ if __name__ == '__main__':
                                 token_dir=paths.token_dir, batch_size=16)
 
     for epoch in range(1, 1000):
+        char_error_sum = 0
         for i, batch in enumerate(dataloader):
             tokens, mel, tokens_len, mel_len = to_device(batch, device)
             pred = model(mel)
@@ -56,6 +66,7 @@ if __name__ == '__main__':
                 first_pred = pred.transpose(0, 1)[0].max(1)[1].detach().cpu().numpy().tolist()
                 text = tokenizer.decode(first_pred)
                 tar_text = tokenizer.decode(first_tar)
+
                 print(text[:100])
                 print(tar_text[:100])
 
