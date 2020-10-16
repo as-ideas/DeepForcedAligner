@@ -10,7 +10,7 @@ from dfa.utils import read_metafile
 
 if __name__ == '__main__':
 
-    checkpoint = torch.load('/Users/cschaefe/dfa_checkpoints/latest_model.pt', map_location=torch.device('cpu'))
+    checkpoint = torch.load('/Users/cschaefe/dfa_checkpoints/latest_model_old.pt', map_location=torch.device('cpu'))
     config = checkpoint['config']
     symbols = checkpoint['symbols']
     audio = Audio(**config['audio'])
@@ -46,8 +46,10 @@ if __name__ == '__main__':
         pred_max[i] = pred[i, target]
 
     durations = extract_durations_with_dijkstra(target, pred_max, tokenizer)
+    expanded_string = ''.join([text[i] * dur for i, dur in enumerate(list(durations))])
     print(text)
     print(pred_text)
+    print(expanded_string)
     print(durations)
 
 

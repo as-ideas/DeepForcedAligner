@@ -15,8 +15,8 @@ class BatchNormConv(nn.Module):
     def forward(self, x):
         x = x.transpose(1, 2)
         x = self.conv(x)
-        x = self.relu(x)
         x = self.bnorm(x)
+        x = self.relu(x)
         x = x.transpose(1, 2)
         return x
 
