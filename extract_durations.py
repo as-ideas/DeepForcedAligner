@@ -17,7 +17,7 @@ from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary, get_files
 
 
-def extract_durations_for_item(item: dict, token_file: Path, pred_file: Path) -> Tuple[str, np.array]:
+def extract_durations_for_item(item: dict, token_file: Path, pred_file: Path) -> Tuple[dict, np.array]:
     tokens_len, mel_len = item['tokens_len'], item['mel_len']
     tokens = np.load(str(token_file), allow_pickle=False)
     tokens = tokens[:tokens_len]
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
         tokens, mel, tokens_len, mel_len = to_device(batch, device)
         pred_batch = model(mel)
-        for b in range(batch.size(0)):
+        for b in range(tokens.size(0)):
             this_mel_len = mel_len[b]
             pred = pred_batch[b, :this_mel_len, :]
             pred = torch.softmax(pred, dim=-1)
