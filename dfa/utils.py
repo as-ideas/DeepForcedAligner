@@ -1,8 +1,9 @@
-import yaml
 import pickle
-import torch
 from pathlib import Path
 from typing import Dict, List, Any, Union
+
+import torch
+import yaml
 
 
 def read_metafile(path: str) -> Dict[str, str]:
