@@ -29,7 +29,7 @@ def extract_durations_for_item(item_file: Tuple[dict, Path, Path]) -> Tuple[dict
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
+    parser = argparse.ArgumentParser(description='Duration extraction for DeepForcedAligner.')
     parser.add_argument('--config', '-c', required=True, type=str, help='Points to the config file.')
     parser.add_argument('--model', '-m', default=None, type=str, help='Points to the a model file to restore.')
     parser.add_argument('--target', '-t', default='output', type=str, help='Target path')
