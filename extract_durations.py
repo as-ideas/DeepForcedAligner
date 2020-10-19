@@ -17,7 +17,8 @@ from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary, get_files
 
 
-def extract_durations_for_item(item: dict, token_file: Path, pred_file: Path) -> Tuple[dict, np.array]:
+def extract_durations_for_item(item_file: Tuple[dict, Path, Path]) -> Tuple[dict, np.array]:
+    item, token_file, pred_file = item_file
     tokens_len, mel_len = item['tokens_len'], item['mel_len']
     tokens = np.load(str(token_file), allow_pickle=False)
     tokens = tokens[:tokens_len]
