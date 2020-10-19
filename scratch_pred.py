@@ -41,7 +41,6 @@ if __name__ == '__main__':
     pred_len = pred.shape[0]
 
     pred_max = np.zeros((pred_len, target_len))
-
     for i in range(pred.shape[0]):
         pred_max[i] = pred[i, target]
 
