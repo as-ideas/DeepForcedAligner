@@ -3,7 +3,7 @@ from pathlib import Path
 import torch
 import numpy as np
 from dfa.audio import Audio
-from dfa.extract_durations import extract_durations_with_dijkstra
+from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner
 from dfa.text import Tokenizer
 from dfa.utils import read_metafile
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     for i in range(pred.shape[0]):
         pred_max[i] = pred[i, target]
 
-    durations = extract_durations_with_dijkstra(target, pred_max, tokenizer)
+    durations = extract_durations_with_dijkstra(target, pred_max)
     expanded_string = ''.join([text[i] * dur for i, dur in enumerate(list(durations))])
     print(text)
     print(pred_text)

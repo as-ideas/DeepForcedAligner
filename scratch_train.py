@@ -1,5 +1,4 @@
 import argparse
-import numpy as np
 import torch
 from torch import optim
 from torch.nn import CTCLoss
@@ -8,33 +7,14 @@ from dfa.dataset import new_dataloader
 from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
-from dfa.utils import read_config, unpickle_binary
+from dfa.utils import read_config, unpickle_binary, to_device
 
-
-def to_device(batch: dict, device: torch.device) -> tuple:
-    tokens, mel, tokens_len, mel_len = batch['tokens'], batch['mel'], \
-                                       batch['tokens_len'], batch['mel_len']
-    tokens, mel, tokens_len, mel_len = tokens.to(device), mel.to(device), \
-                                       tokens_len.to(device), mel_len.to(device)
-    return tokens, mel, tokens_len, mel_len
-
-
-def char_error(pred: torch.tensor, target: torch.tensor) -> float:
-    bs = pred.size(0)
-    sum_diff = 0
-    pred = pred.detach().cpu().numpy()
-    target = pred.detach().cpu().numpy()
-    for i in bs:
-        sum_diff += len(np.setdiff1d(pred[i], target[i]))
-    return sum_diff / bs
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--config', '-c', default='config.yaml', help='Points to the config file.')
     parser.add_argument('--model', '-m', help='Points to the a model file to restore.')
-
     args = parser.parse_args()
-
     config = read_config(args.config)
     paths = Paths(**config['paths'])
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
