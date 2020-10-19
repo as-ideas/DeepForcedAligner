@@ -13,7 +13,6 @@ audio:
   hop_length: 256
   fmin: 0
   fmax: 8000
-  normalizer: 'MelGAN'
 
 model:
   lstm_dim: 128
