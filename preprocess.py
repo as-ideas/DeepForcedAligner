@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     config = read_config(args.config)
     paths = Paths(**config['paths'])
-    audio = Audio(**config['audio'])
+    audio = Audio.from_config(config['audio'])
 
     print(f'Config: {args.config}\n'
           f'Target data directory: {paths.data_dir}')

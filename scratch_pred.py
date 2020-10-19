@@ -14,7 +14,7 @@ if __name__ == '__main__':
     checkpoint = torch.load('/Users/cschaefe/dfa_checkpoints/latest_model_old.pt', map_location=torch.device('cpu'))
     config = checkpoint['config']
     symbols = checkpoint['symbols']
-    audio = Audio(**config['audio'])
+    audio = Audio.from_config(config['audio'])
     tokenizer = Tokenizer(symbols)
     model = Aligner.from_checkpoint(checkpoint).eval()
     print(f'model step {model.get_step()}')
