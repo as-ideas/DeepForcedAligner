@@ -23,7 +23,7 @@ def extract_durations_for_item(item_file: Tuple[dict, Path, Path]) -> Tuple[dict
     tokens = np.load(str(token_file), allow_pickle=False)
     tokens = tokens[:tokens_len]
     pred = np.load(str(pred_file), allow_pickle=False)
-    pred = pred[:, :mel_len, :]
+    pred = pred[:mel_len, :]
     durations = extract_durations_with_dijkstra(tokens, pred)
     return item, durations
 
@@ -75,14 +75,14 @@ if __name__ == '__main__':
 
     print(f'Extracting durations...')
     dataset = unpickle_binary(paths.data_dir / 'dataset.pkl')
-    token_pred_files = []
+    item_files = []
     for item in dataset:
-        file_name =  item['item_id'] + '.npy'
+        file_name = item['item_id'] + '.npy'
         token_file, pred_file = paths.token_dir / file_name, pred_target_dir / file_name
-        token_pred_files.append((item, token_file, pred_file))
+        item_files.append((item, token_file, pred_file))
 
     pool = Pool(processes=args.num_workers)
-    mapper = pool.imap_unordered(extract_durations_for_item, token_pred_files)
-    for i, (item, durations) in tqdm.tqdm(enumerate(mapper), total=len(token_pred_files)):
+    mapper = pool.imap_unordered(extract_durations_for_item, item_files)
+    for i, (item, durations) in tqdm.tqdm(enumerate(mapper), total=len(item_files)):
         item_id = item['item_id']
         np.save(dur_target_dir / f'{item_id}.npy', durations, allow_pickle=False)
