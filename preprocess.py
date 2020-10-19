@@ -4,9 +4,8 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Dict, Union
 
-import torch
-import tqdm
 import numpy as np
+import tqdm
 
 from dfa.audio import Audio
 from dfa.paths import Paths

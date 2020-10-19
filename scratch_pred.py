@@ -1,7 +1,8 @@
 from pathlib import Path
 
-import torch
 import numpy as np
+import torch
+
 from dfa.audio import Audio
 from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner

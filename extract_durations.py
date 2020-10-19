@@ -1,14 +1,13 @@
+import argparse
 from multiprocessing import cpu_count
+from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Tuple
 
-import torch
 import numpy as np
+import torch
 import tqdm
-import argparse
-from multiprocessing.pool import Pool
 
-from dfa.audio import Audio
 from dfa.dataset import new_dataloader
 from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner
