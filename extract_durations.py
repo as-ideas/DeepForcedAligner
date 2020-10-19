@@ -17,11 +17,14 @@ from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary, get_files
 
 
-def extract_durations_from_files(item_id: str, token_file: Path, pred_file: Path) -> Tuple[str, np.array]:
+def extract_durations_for_item(item: dict, token_file: Path, pred_file: Path) -> Tuple[str, np.array]:
+    tokens_len, mel_len = item['tokens_len'], item['mel_len']
     tokens = np.load(str(token_file), allow_pickle=False)
+    tokens = tokens[:tokens_len]
     pred = np.load(str(pred_file), allow_pickle=False)
+    pred = pred[:, :mel_len, :]
     durations = extract_durations_with_dijkstra(tokens, pred)
-    return item_id, durations
+    return item, durations
 
 
 if __name__ == '__main__':
@@ -61,9 +64,8 @@ if __name__ == '__main__':
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
         tokens, mel, tokens_len, mel_len = to_device(batch, device)
         pred_batch = model(mel)
-        for b in range(args.batch_size):
+        for b in range(batch.size(0)):
             this_mel_len = mel_len[b]
-            this_tokens_len = tokens_len[b]
             pred = pred_batch[b, :this_mel_len, :]
             pred = torch.softmax(pred, dim=-1)
             pred = pred.detach().cpu().numpy()
@@ -72,14 +74,14 @@ if __name__ == '__main__':
 
     print(f'Extracting durations...')
     dataset = unpickle_binary(paths.data_dir / 'dataset.pkl')
-    item_ids = [item['item_id'] for item in dataset]
     token_pred_files = []
-    for item_id in item_ids:
-        file_name = item_id + '.npy'
+    for item in dataset:
+        file_name =  item['item_id'] + '.npy'
         token_file, pred_file = paths.token_dir / file_name, pred_target_dir / file_name
-        token_pred_files.append((item_id, token_file, pred_file))
+        token_pred_files.append((item, token_file, pred_file))
 
     pool = Pool(processes=args.num_workers)
-    mapper = pool.imap_unordered(extract_durations_from_files, token_pred_files)
-    for i, (item_id, durations) in tqdm.tqdm(enumerate(mapper), total=len(token_pred_files)):
+    mapper = pool.imap_unordered(extract_durations_for_item, token_pred_files)
+    for i, (item, durations) in tqdm.tqdm(enumerate(mapper), total=len(token_pred_files)):
+        item_id = item['item_id']
         np.save(dur_target_dir / f'{item_id}.npy', durations, allow_pickle=False)
