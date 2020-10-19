@@ -40,11 +40,7 @@ if __name__ == '__main__':
     target_len = target.shape[0]
     pred_len = pred.shape[0]
 
-    pred_max = np.zeros((pred_len, target_len))
-    for i in range(pred.shape[0]):
-        pred_max[i] = pred[i, target]
-
-    durations = extract_durations_with_dijkstra(target, pred_max)
+    durations = extract_durations_with_dijkstra(target, pred)
     expanded_string = ''.join([text[i] * dur for i, dur in enumerate(list(durations))])
     print(text)
     print(pred_text)
