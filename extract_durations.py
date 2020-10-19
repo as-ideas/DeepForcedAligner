@@ -47,8 +47,8 @@ if __name__ == '__main__':
     print(f'Loading model from {model_path}')
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
-    model = Aligner.from_checkpoint(checkpoint).eval()
-    print(f'Loaded model with step {model.get_step()}')
+    model = Aligner.from_checkpoint(checkpoint).eval().to(device)
+    print(f'Loaded model with step {model.get_step()} on device: {device}')
 
     config, audio, symbols = checkpoint['config'], Audio(**config['audio']), checkpoint['symbols']
     data_symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
