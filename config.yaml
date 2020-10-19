@@ -1,7 +1,9 @@
 
 paths:
+  dataset_dir: /Volumes/data/datasets/LJSpeech-1.1/
   data_dir: dfa_data
-  checkpoint_dir: /Users/cschaefe/dfa_checkpoints
+  checkpoint_dir: /Volumes/data/logs/dfa
+  precomputed_mels: null # Optional: pre-computed mels
 
 audio:
   sample_rate: 22050
