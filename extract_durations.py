@@ -14,7 +14,7 @@ from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
-from dfa.utils import read_config, to_device, unpickle_binary, get_files
+from dfa.utils import read_config, to_device, unpickle_binary
 
 
 def extract_durations_for_item(item_file: Tuple[dict, Path, Path]) -> Tuple[dict, np.array]:
@@ -54,9 +54,8 @@ if __name__ == '__main__':
     model = Aligner.from_checkpoint(checkpoint).eval().to(device)
     print(f'Loaded model with step {model.get_step()} on device: {device}')
 
-    config, audio, symbols = checkpoint['config'], Audio(**config['audio']), checkpoint['symbols']
-    data_symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
-    assert data_symbols == symbols, 'Symbols from dataset do not match symbols from loaded model!'
+    symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
+    assert symbols == checkpoint['symbols'], 'Symbols from dataset do not match symbols from model checkpoint!'
     tokenizer = Tokenizer(symbols)
     dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
                                 token_dir=paths.token_dir, batch_size=args.batch_size)
