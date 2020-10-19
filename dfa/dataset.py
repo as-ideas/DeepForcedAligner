@@ -22,8 +22,11 @@ class AlignerDataset(Dataset):
 
     def __getitem__(self, index):
         item_id = self.item_ids[index]
-        mel = torch.load(self.mel_dir / f'{item_id}.pt')
-        tokens = torch.load(self.token_dir / f'{item_id}.pt')
+        mel = np.load(str(self.mel_dir / f'{item_id}.npy'), allow_pickle=False)
+        tokens = np.load(str(self.token_dir / f'{item_id}.npy'), allow_pickle=False)
+        mel = torch.tensor(mel).float()
+        tokens = torch.tensor(tokens).long()
+
         return {'item_id': item_id, 'tokens': tokens, 'mel': mel,
                 'tokens_len': tokens.size(0), 'mel_len': mel.size(0)}
 
@@ -67,8 +70,9 @@ def collate_dataset(batch: List[dict]) -> torch.tensor:
     mels = pad_sequence(mels, batch_first=True, padding_value=0)
     tokens_len = torch.tensor([b['tokens_len'] for b in batch]).long()
     mel_len = torch.tensor([b['mel_len'] for b in batch]).long()
-    return {'tokens': tokens, 'mel': mels,
-            'tokens_len': tokens_len, 'mel_len': mel_len}
+    item_ids = [b['item_id'] for b in batch]
+    return {'tokens': tokens, 'mel': mels, 'tokens_len': tokens_len,
+            'mel_len': mel_len, 'item_id': item_ids}
 
 
 def new_dataloader(dataset_path: Path, mel_dir: Path,

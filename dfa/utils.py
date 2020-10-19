@@ -1,7 +1,9 @@
-import yaml
 import pickle
 from pathlib import Path
 from typing import Dict, List, Any, Union
+
+import torch
+import yaml
 
 
 def read_metafile(path: str) -> Dict[str, str]:
@@ -35,3 +37,11 @@ def pickle_binary(data: object, file: Union[str, Path]) -> None:
 def unpickle_binary(file: Union[str, Path]) -> Any:
     with open(str(file), 'rb') as f:
         return pickle.load(f)
+
+
+def to_device(batch: dict, device: torch.device) -> tuple:
+    tokens, mel, tokens_len, mel_len = batch['tokens'], batch['mel'], \
+                                       batch['tokens_len'], batch['mel_len']
+    tokens, mel, tokens_len, mel_len = tokens.to(device), mel.to(device), \
+                                       tokens_len.to(device), mel_len.to(device)
+    return tokens, mel, tokens_len, mel_len

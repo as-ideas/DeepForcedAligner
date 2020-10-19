@@ -1,7 +1,7 @@
 
 paths:
-  data_dir: /tmp/dfa_data
-  checkpoint_dir: /tmp/dfa_checkpoints
+  data_dir: dfa_data
+  checkpoint_dir: /Users/cschaefe/dfa_checkpoints
 
 audio:
   sample_rate: 22050

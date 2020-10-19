@@ -4,7 +4,7 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Dict, Union
 
-import torch
+import numpy as np
 import tqdm
 
 from dfa.audio import Audio
@@ -27,13 +27,11 @@ class Preprocessor:
         item_id = wav_path.stem
         wav = self.audio.load_wav(wav_path)
         mel = self.audio.wav_to_mel(wav)
-        mel = torch.tensor(mel).float()
         text = self.text_dict[item_id]
-        tokens = self.tokenizer(text)
-        tokens = torch.tensor(tokens).long()
-        torch.save(mel, self.paths.mel_dir / f'{item_id}.pt')
-        torch.save(tokens, self.paths.token_dir / f'{item_id}.pt')
-        return {'item_id': item_id, 'tokens_len': tokens.size(0), 'mel_len': mel.size(0)}
+        tokens = np.array(self.tokenizer(text)).astype(np.int32)
+        np.save(self.paths.mel_dir / f'{item_id}.npy', mel, allow_pickle=False)
+        np.save(self.paths.token_dir / f'{item_id}.npy', tokens, allow_pickle=False)
+        return {'item_id': item_id, 'tokens_len': tokens.shape[0], 'mel_len': mel.shape[0]}
 
 
 if __name__ == '__main__':
@@ -56,6 +54,7 @@ if __name__ == '__main__':
     for text in text_dict.values():
         symbols.update(set(text))
     symbols = sorted(list(symbols))
+
 
     wav_files = get_files(args.path, extension='.wav')
     tokenizer = Tokenizer(symbols)
