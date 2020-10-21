@@ -13,10 +13,9 @@ from dfa.utils import read_config, unpickle_binary, to_device
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--config', '-c', default='config.yaml', help='Points to the config file.')
-    parser.add_argument('--model', '-m', help='Points to the a model file to restore.')
     args = parser.parse_args()
     config = read_config(args.config)
-    paths = Paths(**config['paths'])
+    paths = Paths.from_config(config['paths'])
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -24,7 +23,6 @@ if __name__ == '__main__':
                     num_symbols=len(symbols)+1,
                     **config['model']).to(device)
     optim = optim.Adam(model.parameters(), lr=1e-4)
-    paths = Paths(**config['paths'])
     ctc_loss = CTCLoss()
     tokenizer = Tokenizer(symbols)
     dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
