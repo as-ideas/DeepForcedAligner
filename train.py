@@ -1,13 +1,10 @@
 import argparse
-import torch
-from torch import optim
-from torch.nn import CTCLoss
 
-from dfa.dataset import new_dataloader
+from torch import optim
+
 from dfa.model import Aligner
 from dfa.paths import Paths
-from dfa.text import Tokenizer
-from dfa.utils import read_config, unpickle_binary, to_device
+from dfa.utils import read_config, unpickle_binary
 from trainer import Trainer
 
 if __name__ == '__main__':
@@ -24,7 +21,6 @@ if __name__ == '__main__':
                     num_symbols=len(symbols)+1,
                     **config['model'])
     optim = optim.Adam(model.parameters(), lr=1e-4)
-
     checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
                   'config': config, 'symbols': symbols}
 

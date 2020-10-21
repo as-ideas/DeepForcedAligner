@@ -1,18 +1,15 @@
-import argparse
-from typing import List
-
+import numpy as np
 import torch
 import tqdm
-from torch import optim
 from torch.nn import CTCLoss
-from torch.optim import Optimizer, Adam
+from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
-import numpy as np
+
 from dfa.dataset import new_dataloader, get_longest_mel_id
 from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
-from dfa.utils import read_config, unpickle_binary, to_device
+from dfa.utils import to_device
 
 
 class Trainer:
@@ -68,7 +65,8 @@ class Trainer:
                 loss_sum += loss.item()
 
                 self.writer.add_scalar('CTC_Loss', loss.item(), global_step=model.get_step())
-                self.writer.add_scalar('Params', loss.item(), global_step=model.get_step())
+                self.writer.add_scalar('Params/batch_size', batch_size, global_step=model.get_step())
+                self.writer.add_scalar('Params/learning_rate', lr, global_step=model.get_step())
 
                 if model.get_step() % ckpt_steps == 0:
                     torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
