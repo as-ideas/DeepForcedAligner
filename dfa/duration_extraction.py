@@ -106,4 +106,8 @@ def extract_durations_beam(pred, tokens, k):
         ordered = sorted(all_candidates, key=lambda tup: tup[1])
         # select k best
         sequences = ordered[:k]
-    return sequences
+    durations = []
+    for sequence in sequences:
+        durations.append(np.bincount(sequence[0]))
+
+    return durations, sequences
