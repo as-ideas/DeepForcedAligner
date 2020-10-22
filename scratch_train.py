@@ -13,7 +13,6 @@ from dfa.utils import read_config, unpickle_binary, to_device
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--config', '-c', default='config.yaml', help='Points to the config file.')
-    parser.add_argument('--model', '-m', help='Points to the a model file to restore.')
     args = parser.parse_args()
     config = read_config(args.config)
     paths = Paths.from_config(config['paths'])
