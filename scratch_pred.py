@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from dfa.audio import Audio
-from dfa.duration_extraction import extract_durations_with_dijkstra
+from dfa.duration_extraction import extract_durations_with_dijkstra, extract_durations_beam
 from dfa.model import Aligner
 from dfa.text import Tokenizer
 from dfa.utils import read_metafile
@@ -42,10 +42,13 @@ if __name__ == '__main__':
     pred_len = pred.shape[0]
 
     durations = extract_durations_with_dijkstra(target, pred)
+    sequences = extract_durations_beam(pred, target, 5)
     expanded_string = ''.join([text[i] * dur for i, dur in enumerate(list(durations))])
     print(text)
     print(pred_text)
     print(expanded_string)
+    print(tokenizer.decode(target[sequences[0][0]]))
+    print(tokenizer.decode(target[sequences[-1][0]]))
     print(durations)
 
 

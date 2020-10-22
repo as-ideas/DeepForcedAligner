@@ -86,3 +86,24 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
         durations[j] += 1
 
     return durations
+
+
+def extract_durations_beam(pred, tokens, k):
+    data = pred[:, tokens]
+    sequences = [[[0], - np.log(data[0,0])]] # always start on first position
+    for row in data[1:]:
+        all_candidates = list()
+        # expand each current candidate
+        for i in range(len(sequences)):
+            seq, score = sequences[i]
+            for j in [seq[-1], seq[-1]+1]: # only allow 2 possible moves
+                if j < data.shape[-1]:
+                    candidate = [seq + [j], score - np.log(row[j])]
+                else:
+                    candidate = [seq + [j], np.inf]
+                all_candidates.append(candidate)
+        # order all candidates by score
+        ordered = sorted(all_candidates, key=lambda tup: tup[1])
+        # select k best
+        sequences = ordered[:k]
+    return sequences
