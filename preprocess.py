@@ -52,13 +52,13 @@ if __name__ == '__main__':
     print(f'Config: {args.config}\n'
           f'Target data directory: {paths.data_dir}')
     
-    text_dict = read_metafile(paths.dataset_dir)
+    text_dict = read_metafile(paths.metadata_path)
     symbols = set()
     for text in text_dict.values():
         symbols.update(set(text))
     symbols = sorted(list(symbols))
-    
     wav_files = get_files(paths.dataset_dir, extension='.wav')
+    wav_files = [x for x in wav_files if x.stem in text_dict] # for filtering in the metadata
     tokenizer = Tokenizer(symbols)
     preprocessor = Preprocessor(audio=audio, tokenizer=tokenizer,
                                 paths=paths, text_dict=text_dict)
