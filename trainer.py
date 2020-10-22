@@ -61,6 +61,7 @@ class Trainer:
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
+
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optim.step()
@@ -86,7 +87,8 @@ class Trainer:
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
         model.eval()
-        longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(model.device)
+        device = next(model.parameters()).device
+        longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
         pred = model(longest_mel)[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
