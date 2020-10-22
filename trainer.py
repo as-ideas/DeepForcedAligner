@@ -22,10 +22,8 @@ class Trainer:
 
         # Used for generating plots
         longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / 'dataset.pkl')
-        longest_mel = np.load(str(paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
-        longest_tokens = np.load(str(paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
-        self.longest_mel = torch.tensor(longest_mel).unsqueeze(0).float()
-        self.longest_tokens = longest_tokens
+        self.longest_mel = np.load(str(paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
+        self.longest_tokens = np.load(str(paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
 
     def train(self, checkpoint: dict, train_params: dict) -> None:
         lr = train_params['learning_rate']
@@ -88,13 +86,13 @@ class Trainer:
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
         model.eval()
-        pred = model(self.longest_mel)[0].detach().cpu().softmax(dim=-1)
+        longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(model.device)
+        pred = model(longest_mel)[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
         pred_text = tokenizer.decode(pred_max)
         target_text = tokenizer.decode(self.longest_tokens)
         target_duration_rep = ''.join(c * durations[i] for i, c in enumerate(target_text))
-
         self.writer.add_text('Text/Prediction', '    ' + pred_text, global_step=model.get_step())
         self.writer.add_text('Text/Target_Duration_Repeated',
                              '    ' + target_duration_rep, global_step=model.get_step())
