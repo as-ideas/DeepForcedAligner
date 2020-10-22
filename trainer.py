@@ -56,14 +56,15 @@ class Trainer:
                 pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
                                           f'| Loss: {loss_sum / i:#.4}', refresh=True)
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
+
                 pred = model(mel)
-
                 pred = pred.transpose(0, 1).log_softmax(2)
-                loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
+                loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optim.step()
+
                 loss_sum += loss.item()
 
                 self.writer.add_scalar('CTC_Loss', loss.item(), global_step=model.get_step())
