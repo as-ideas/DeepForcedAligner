@@ -6,6 +6,7 @@ from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 
 from dfa.dataset import new_dataloader, get_longest_mel_id
+from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
@@ -49,16 +50,19 @@ class Trainer:
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
         loss_sum = 0.
+        start_epoch = model.get_step() // len(dataloader)
 
-        for epoch in range(1, epochs):
+        for epoch in range(start_epoch + 1, epochs):
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
             for i, batch in pbar:
                 pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
                                           f'| Loss: {loss_sum / i:#.4}', refresh=True)
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
                 pred = model(mel)
+
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optim.step()
@@ -84,10 +88,15 @@ class Trainer:
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
         model.eval()
-        pred = model(self.longest_mel)
-        pred_max = pred[0].max(1)[1].detach().cpu().numpy().tolist()
-        pred_text = '    ' + tokenizer.decode(pred_max)
-        target_text = '    ' + tokenizer.decode(self.longest_tokens)
-        self.writer.add_text('Text/Prediction', pred_text, global_step=model.get_step())
-        self.writer.add_text('Text/Target', target_text, global_step=model.get_step())
+        pred = model(self.longest_mel)[0].detach().cpu().softmax(dim=-1)
+        durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
+        pred_max = pred.max(1)[1].numpy().tolist()
+        pred_text = tokenizer.decode(pred_max)
+        target_text = tokenizer.decode(self.longest_tokens)
+        target_duration_rep = ''.join(c * durations[i] for i, c in enumerate(target_text))
+
+        self.writer.add_text('Text/Prediction', '    ' + pred_text, global_step=model.get_step())
+        self.writer.add_text('Text/Target_Duration_Repeated',
+                             '    ' + target_duration_rep, global_step=model.get_step())
+        self.writer.add_text('Text/Target', '    ' + target_text, global_step=model.get_step())
         model.train()

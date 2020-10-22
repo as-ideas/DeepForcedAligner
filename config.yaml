@@ -21,6 +21,6 @@ model:
 training:
   learning_rate: 0.0001
   batch_size: 4
-  epochs: 10
-  plot_steps: 100
+  epochs: 1000
+  plot_steps: 1000
   checkpoint_steps: 10_000
