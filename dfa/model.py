@@ -71,9 +71,9 @@ class TTSModel(torch.nn.Module):
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
         self.convs = nn.ModuleList([
-            BatchNormConv(num_symbols + n_mels, conv_dim, 5),
+            BatchNormConv(num_symbols, conv_dim, 5),
         ])
-        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=False)
+        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
         self.lin = torch.nn.Linear(lstm_dim, n_mels)
         self.n_mels = n_mels
 
@@ -81,8 +81,8 @@ class TTSModel(torch.nn.Module):
         if self.train:
             self.step += 1
         device = x.device
-        mel_in = torch.cat([torch.zeros(x.size(0), 1, self.n_mels, device=device), mel[:, :-1, :]], dim=1)
-        x = torch.cat([x, mel_in], dim=-1)
+        #mel_in = torch.cat([torch.zeros(x.size(0), 1, self.n_mels, device=device), mel[:, :-1, :]], dim=1)
+        #x = torch.cat([x, mel_in], dim=-1)
         for conv in self.convs:
             x = conv(x)
         x, _ = self.rnn(x)
