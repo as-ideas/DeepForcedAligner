@@ -15,12 +15,12 @@ audio:
   fmax: 8000
 
 model:
-  lstm_dim: 128
-  conv_dim: 64
+  lstm_dim: 256
+  conv_dim: 256
 
 training:
   learning_rate: 0.0001
-  batch_size: 4
+  batch_size: 8
   epochs: 1000
   plot_steps: 1000
   checkpoint_steps: 10_000
