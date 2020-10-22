@@ -10,7 +10,7 @@ from trainer import Trainer
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--config', '-c', default='config.yaml', help='Points to the config file.')
-    parser.add_argument('--checkpoint', '-cp', help='Points to the a model file to restore.')
+    parser.add_argument('--checkpoint', '-cp', default=None, help='Points to the a model file to restore.')
     args = parser.parse_args()
 
     config = read_config(args.config)
@@ -18,9 +18,10 @@ if __name__ == '__main__':
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
 
     if args.checkpoint:
-        print(f'Restoring model from checkpoint {args.checkpoint}')
+        print(f'Restoring model from checkpoint: {args.checkpoint}')
         checkpoint = torch.load(args.checkpoint, map_location=torch.device('cpu'))
         model = Aligner.from_checkpoint(checkpoint)
+        assert checkpoint['symbols'] == symbols, 'Symbols from data do not match symbols from model!'
         print(f'Restored model with step {model.get_step()}')
     else:
         print(f'Initializing new model from config {args.config}')

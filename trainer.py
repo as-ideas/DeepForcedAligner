@@ -61,7 +61,6 @@ class Trainer:
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
-
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optim.step()
