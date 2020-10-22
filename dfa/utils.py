@@ -7,11 +7,8 @@ import yaml
 
 
 def read_metafile(path: str) -> Dict[str, str]:
-    csv_files = get_files(path, extension='.csv')
-    assert len(csv_files) == 1, f'Found multiple csv files in {path}, expected a single one!'
-    csv_file = str(csv_files[0])
     text_dict = {}
-    with open(csv_file, encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         for line in f:
             split = line.split('|')
             text_id, text = split[0], split[-1]
