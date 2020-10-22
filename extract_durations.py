@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     config = read_config(args.config)
-    paths = Paths(**config['paths'])
+    paths = Paths.from_config(config['paths'])
     model_path = args.model if args.model else paths.checkpoint_dir / 'latest_model.pt'
 
     print(f'Target dir: {args.target}')
