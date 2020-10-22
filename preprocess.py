@@ -59,7 +59,7 @@ if __name__ == '__main__':
     symbols = sorted(list(symbols))
     metadata_items = list(text_dict.keys())
     wav_files = get_files(paths.dataset_dir, extension='.wav')
-    wav_files = [x for x in wav_files if x.stem in metadata_items] # for filtering in the metadata
+    wav_files = [x for x in wav_files if x.stem in text_dict] # for filtering in the metadata
     tokenizer = Tokenizer(symbols)
     preprocessor = Preprocessor(audio=audio, tokenizer=tokenizer,
                                 paths=paths, text_dict=text_dict)
