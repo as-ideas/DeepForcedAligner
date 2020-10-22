@@ -65,10 +65,13 @@ class Trainer:
                 pred = model(mel)
                 pred_tts = model_tts(pred.softmax(-1), mel)
 
-                #pred = pred.transpose(0, 1).log_softmax(2)
-                #loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                pred = pred.transpose(0, 1).log_softmax(2)
+                loss_ctc = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
                 loss = torch.nn.functional.l1_loss(pred_tts, mel)
+
+                loss = loss + loss_ctc
+
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 torch.nn.utils.clip_grad_norm_(model_tts.parameters(), 1.0)
