@@ -59,3 +59,44 @@ class Aligner(torch.nn.Module):
                         **config['model'])
         model.load_state_dict(checkpoint['model'])
         return model
+
+
+class TTSModel(torch.nn.Module):
+
+    def __init__(self,
+                 n_mels: int,
+                 num_symbols: int,
+                 lstm_dim: int,
+                 conv_dim: int) -> None:
+        super().__init__()
+        self.register_buffer('step', torch.tensor(1, dtype=torch.int))
+        self.convs = nn.ModuleList([
+            BatchNormConv(num_symbols + n_mels, conv_dim, 5),
+        ])
+        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=False)
+        self.lin = torch.nn.Linear(lstm_dim, n_mels)
+        self.n_mels = n_mels
+
+    def forward(self, x, mel):
+        if self.train:
+            self.step += 1
+        mel_in = torch.cat([torch.zeros(x.size(0), 1, self.n_mels), mel[:, :-1, :]], dim=1)
+        x = torch.cat([x, mel_in], dim=-1)
+        for conv in self.convs:
+            x = conv(x)
+        x, _ = self.rnn(x)
+        x = self.lin(x)
+        return x
+
+    def get_step(self):
+        return self.step.data.item()
+
+    @classmethod
+    def from_checkpoint(cls, checkpoint: dict) -> 'TTSModel':
+        config = checkpoint['config']
+        symbols = checkpoint['symbols']
+        model = TTSModel(n_mels=config['audio']['n_mels'],
+                        num_symbols=len(symbols) + 1,
+                        **config['model'])
+        model.load_state_dict(checkpoint['model_tts'])
+        return model

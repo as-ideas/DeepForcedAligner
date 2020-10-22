@@ -2,7 +2,7 @@ import argparse
 import torch
 from torch import optim
 
-from dfa.model import Aligner
+from dfa.model import Aligner, TTSModel
 from dfa.paths import Paths
 from dfa.utils import read_config, unpickle_binary
 from trainer import Trainer
@@ -28,9 +28,14 @@ if __name__ == '__main__':
         model = Aligner(n_mels=config['audio']['n_mels'],
                         num_symbols=len(symbols)+1,
                         **config['model'])
-        optim = optim.Adam(model.parameters(), lr=1e-4)
-        checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
-                      'config': config, 'symbols': symbols}
+        model_tts = TTSModel(n_mels=config['audio']['n_mels'],
+                        num_symbols=len(symbols)+1,
+                        **config['model'])
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
+        optim_tts = optim.Adam(model_tts.parameters(), lr=1e-4)
+        checkpoint = {'model': model.state_dict(), 'optim': optimizer.state_dict(),
+                      'config': config, 'symbols': symbols, 'model_tts': model_tts.state_dict(),
+                      'optim_tts': optim_tts.state_dict()}
 
     trainer = Trainer(paths=paths)
     trainer.train(checkpoint, train_params=config['training'])

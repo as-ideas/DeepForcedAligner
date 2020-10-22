@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from dfa.dataset import new_dataloader, get_longest_mel_id
 from dfa.duration_extraction import extract_durations_with_dijkstra
-from dfa.model import Aligner
+from dfa.model import Aligner, TTSModel
 from dfa.paths import Paths
 from dfa.text import Tokenizer
 from dfa.utils import to_device
@@ -38,10 +38,15 @@ class Trainer:
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
         model = Aligner.from_checkpoint(checkpoint).to(device)
+        model_tts = TTSModel.from_checkpoint(checkpoint).to(device)
         optim = Adam(model.parameters())
         optim.load_state_dict(checkpoint['optim'])
+        optim_tts = Adam(model_tts.parameters())
+        optim_tts.load_state_dict(checkpoint['optim_tts'])
 
         for g in optim.param_groups:
+            g['lr'] = lr
+        for g in optim_tts.param_groups:
             g['lr'] = lr
 
         dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'dataset.pkl', mel_dir=self.paths.mel_dir,
@@ -58,12 +63,17 @@ class Trainer:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
-                pred = pred.transpose(0, 1).log_softmax(2)
+                pred_tts = model_tts(pred.softmax(-1), mel)
 
-                loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                #pred = pred.transpose(0, 1).log_softmax(2)
+                #loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+
+                loss = torch.nn.functional.l1_loss(pred_tts, mel)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                torch.nn.utils.clip_grad_norm_(model_tts.parameters(), 1.0)
                 optim.step()
+                optim_tts.step()
 
                 loss_sum += loss.item()
 
@@ -72,8 +82,10 @@ class Trainer:
                 self.writer.add_scalar('Params/learning_rate', lr, global_step=model.get_step())
 
                 if model.get_step() % ckpt_steps == 0:
-                    torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
-                                'config': config, 'symbols': symbols},
+                    checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
+                                  'config': config, 'symbols': symbols, 'model_tts': model_tts.state_dict(),
+                                  'optim_tts': optim_tts.state_dict()}
+                    torch.save(checkpoint,
                                self.paths.checkpoint_dir / f'model_step_{model.get_step() // 1000}k.pt')
 
                 if model.get_step() % plot_steps == 0:
@@ -81,8 +93,10 @@ class Trainer:
 
             loss_sum = 0
             latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
-            torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
-                        'config': config, 'symbols': symbols},
+            checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
+                          'config': config, 'symbols': symbols, 'model_tts': model_tts.state_dict(),
+                          'optim_tts': optim_tts.state_dict()}
+            torch.save(checkpoint,
                        latest_checkpoint)
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
