@@ -42,7 +42,7 @@ if __name__ == '__main__':
     pred_len = pred.shape[0]
 
     durations = extract_durations_with_dijkstra(target, pred)
-    durations_beam, sequences = extract_durations_beam(pred, target, 5)
+    durations_beam, sequences = extract_durations_beam(target, pred, 5)
     expanded_string = ''.join([text[i] * dur for i, dur in enumerate(list(durations))])
     print(text)
     print(pred_text)

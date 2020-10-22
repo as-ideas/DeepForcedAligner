@@ -88,7 +88,7 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     return durations
 
 
-def extract_durations_beam(pred, tokens, k):
+def extract_durations_beam(tokens: np.array, pred: np.array, k: int) -> np.array:
     data = pred[:, tokens]
     sequences = [[[0], - np.log(data[0,0])]] # always start on first position
     for row in data[1:]:
