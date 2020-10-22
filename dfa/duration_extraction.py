@@ -55,11 +55,7 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     top left to bottom right.
     """
 
-    target_len, pred_len = tokens.shape[0], pred.shape[0]
-    pred_max = np.zeros((pred_len, target_len))
-    for i in range(pred.shape[0]):
-        pred_max[i] = pred[i, tokens]
-
+    pred_max = pred[:, tokens]
     path_probs = 1. - pred_max
     adj_matrix = to_adj_matrix(path_probs)
     dist_matrix, predecessors = dijkstra(csgraph=adj_matrix, directed=True,
