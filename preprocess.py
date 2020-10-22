@@ -57,7 +57,6 @@ if __name__ == '__main__':
     for text in text_dict.values():
         symbols.update(set(text))
     symbols = sorted(list(symbols))
-    metadata_items = list(text_dict.keys())
     wav_files = get_files(paths.dataset_dir, extension='.wav')
     wav_files = [x for x in wav_files if x.stem in text_dict] # for filtering in the metadata
     tokenizer = Tokenizer(symbols)
