@@ -17,7 +17,7 @@ class Trainer:
 
     def __init__(self, paths: Paths) -> None:
         self.paths = paths
-        self.writer = SummaryWriter(log_dir=paths.checkpoint_dir / 'tensorboard', comment='v1')
+        self.writer = SummaryWriter(log_dir=paths.checkpoint_dir / 'tensorboard')
         self.ctc_loss = CTCLoss()
 
         # Used for generating plots
@@ -61,6 +61,8 @@ class Trainer:
                 pred = pred.transpose(0, 1).log_softmax(2)
 
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+
+                optim.zero_grad()
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optim.step()
