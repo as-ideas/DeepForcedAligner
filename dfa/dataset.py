@@ -88,3 +88,9 @@ def new_dataloader(dataset_path: Path, mel_dir: Path,
                                                   bin_size=batch_size*3),
                       num_workers=0,
                       pin_memory=True)
+
+
+def get_longest_mel_id(dataset_path: Path) -> str:
+    dataset = unpickle_binary(dataset_path)
+    dataset.sort(key=lambda item: (item['mel_len'], item['item_id']))
+    return dataset[-1]['item_id']
