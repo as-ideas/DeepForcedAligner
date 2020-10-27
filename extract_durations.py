@@ -9,28 +9,36 @@ import torch
 import tqdm
 
 from dfa.dataset import new_dataloader
-from dfa.duration_extraction import extract_durations_with_dijkstra
+from dfa.duration_extraction import extract_durations_with_dijkstra, extract_durations_beam
 from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary
 
-
-def extract_durations_for_item(item_file: Tuple[dict, Path, Path]) -> Tuple[dict, np.array]:
-    item, token_file, pred_file = item_file
-    tokens_len, mel_len = item['tokens_len'], item['mel_len']
-    tokens = np.load(str(token_file), allow_pickle=False)
-    tokens = tokens[:tokens_len]
-    pred = np.load(str(pred_file), allow_pickle=False)
-    pred = pred[:mel_len, :]
-    durations = extract_durations_with_dijkstra(tokens, pred)
-    return item, durations
+class Extractor:
+    def __init__(self, method):
+        self.method = method
+        
+    def extract_durations_for_item(self, item_file: Tuple[dict, Path, Path]) -> Tuple[dict, np.array]:
+        item, token_file, pred_file = item_file
+        tokens_len, mel_len = item['tokens_len'], item['mel_len']
+        tokens = np.load(str(token_file), allow_pickle=False)
+        tokens = tokens[:tokens_len]
+        pred = np.load(str(pred_file), allow_pickle=False)
+        pred = pred[:mel_len, :]
+        if self.method == 'beam':
+            durations, _ = extract_durations_beam(pred, tokens, 10)
+            durations = durations[0]
+        else:
+            durations = extract_durations_with_dijkstra(tokens, pred)
+            
+        return item, durations
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Duration extraction for DeepForcedAligner.')
-    parser.add_argument('--config', '-c', required=True, type=str, help='Points to the config file.')
+    parser.add_argument('--config', '-c', default='config.yaml', type=str, help='Points to the config file.')
     parser.add_argument('--model', '-m', default=None, type=str, help='Points to the a model file to restore.')
     parser.add_argument('--target', '-t', default='output', type=str, help='Target path')
     parser.add_argument('--batch_size', '-b', default=8, type=int, help='Batch size for inference.')
@@ -80,7 +88,8 @@ if __name__ == '__main__':
         item_files.append((item, token_file, pred_file))
 
     pool = Pool(processes=args.num_workers)
-    mapper = pool.imap_unordered(extract_durations_for_item, item_files)
+    extr_fx = Extractor(method=config['durations']['method']).extract_durations_for_item
+    mapper = pool.imap_unordered(extr_fx, item_files)
     for i, (item, durations) in tqdm.tqdm(enumerate(mapper), total=len(item_files)):
         item_id = item['item_id']
         np.save(dur_target_dir / f'{item_id}.npy', durations, allow_pickle=False)
