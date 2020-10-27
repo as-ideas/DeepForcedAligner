@@ -36,7 +36,7 @@ class Preprocessor:
                 mel = mel.T
             assert mel.shape[1] == self.audio.n_mels, \
                 f'Expected mel shape to be of (None, {self.audio.n_mels}), but was: {mel.shape}! ' \
-                f'Consider adding / removing the --mel_dim_last flag.'
+                f'Consider setting config/audio/mel_dim_last: {not self.mel_dim_last}'
         else:
             wav = self.audio.load_wav(file_path)
             mel = self.audio.wav_to_mel(wav)
@@ -51,8 +51,6 @@ class Preprocessor:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocessing for DeepForcedAligner.')
     parser.add_argument('--config', '-c', help='Points to the config file.', default='config.yaml')
-    parser.add_argument('--mel_dim_last', action='store_true',
-                        help='Set if precomputed mels have mel channels as last dimension.')
     parser.add_argument('--num_workers', '-w', metavar='N', type=int, default=cpu_count() - 1,
                         help='The number of worker threads to use for preprocessing')
 
@@ -61,6 +59,7 @@ if __name__ == '__main__':
     config = read_config(args.config)
     paths = Paths.from_config(config['paths'])
     audio = Audio.from_config(config['audio'])
+    mel_dim_last = config['preprocessing']['mel_dim_last']
     
     print(f'Config: {args.config}\n'
           f'Target data directory: {paths.data_dir}')
@@ -79,7 +78,7 @@ if __name__ == '__main__':
     audio_files = [x for x in audio_files if x.stem in text_dict]
     tokenizer = Tokenizer(symbols)
     preprocessor = Preprocessor(audio=audio, tokenizer=tokenizer, paths=paths,
-                                text_dict=text_dict, mel_dim_last=args.mel_dim_last)
+                                text_dict=text_dict, mel_dim_last=mel_dim_last)
     pool = Pool(processes=args.num_workers)
     mapper = pool.imap_unordered(preprocessor, audio_files)
     dataset = []

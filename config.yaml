@@ -15,10 +15,12 @@ audio:
   fmin: 0
   fmax: 8000
 
+preprocessing:
+  mel_dim_last: false # whether precomputed mels have mel channels as last dimension
+
 model:
   lstm_dim: 128
   conv_dim: 64
-
 
 durations:
   method: 'dijkstra' # options: [dijkstra, beam]
