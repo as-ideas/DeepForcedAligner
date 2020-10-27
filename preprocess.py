@@ -36,7 +36,7 @@ class Preprocessor:
                 mel = mel.T
             assert mel.shape[1] == self.audio.n_mels, \
                 f'Expected mel shape to be of (None, {self.audio.n_mels}), but was: {mel.shape}! ' \
-                f'Consider adding / deleting the --mel_dim_last flag.'
+                f'Consider adding / removing the --mel_dim_last flag.'
         else:
             wav = self.audio.load_wav(file_path)
             mel = self.audio.wav_to_mel(wav)
