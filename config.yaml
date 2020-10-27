@@ -19,5 +19,13 @@ model:
   lstm_dim: 128
   conv_dim: 64
 
+
 durations:
   method: 'dijkstra' # options: [dijkstra, beam]
+
+training:
+  learning_rate: 0.0001
+  batch_size: 4
+  epochs: 1000
+  plot_steps: 1000
+  checkpoint_steps: 10_000
