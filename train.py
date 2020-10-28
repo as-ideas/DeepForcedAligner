@@ -34,3 +34,4 @@ if __name__ == '__main__':
 
     trainer = Trainer(paths=paths)
     trainer.train(checkpoint, train_params=config['training'])
+

@@ -1,10 +1,10 @@
 
 paths:
-  dataset_dir: /Volumes/data/datasets/ASVoice2
-  metadata_path: /Volumes/data/datasets/ASVoice2/transformer_tts/phonemized_metadata.txt
+  dataset_dir: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets"
+  metadata_path: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets/metadata.csv"
   data_dir: dfa_data
-  checkpoint_dir: /Volumes/data/logs/dfa
-  precomputed_mels: /Volumes/data/datasets/ASVoice2/transformer_tts/mels.MelGAN
+  checkpoint_dir: dfa_checkpoints
+  precomputed_mels: "/Users/cschaefe/workspace/ForwardTacotron/data/mel"
 
 audio:
   sample_rate: 22050
@@ -15,10 +15,12 @@ audio:
   fmin: 0
   fmax: 8000
 
+preprocessing:
+  mel_dim_last: false # whether precomputed mels have mel channels as last dimension
+
 model:
   lstm_dim: 128
   conv_dim: 64
-
 
 durations:
   method: 'dijkstra' # options: [dijkstra, beam]
