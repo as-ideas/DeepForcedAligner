@@ -3,8 +3,8 @@
 With this tool you can create accurate text-audio alignments given a bunch of audio files and their transcription. The alignments can for example be used to train text-to-speech models such as 
 [FastSpeech](https://arxiv.org/abs/1905.09263?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%253A+arxiv%252FQSXk+%2528ExcitingAds%2521+cs+updates+on+arXiv.org%2529). In comparison to other forced alignment tools this repo has following advantages:
 
-- **Polyglot** By design, the DFA is language-agnostic and can align charater or phonemes
-- **Robustness:** Alignment has a high tolerance for text errors and special (silent) characters
+- **Polyglot:** By design, the DFA is language-agnostic and can align charater or phonemes.
+- **Robustness:** Alignment has a high tolerance for text errors and special (silent) characters.
 - **Convenience:** Easy installation with no extra dependencies. You can provide your own data in the standard LJSpeech format with no extra preprocessing (such as phoneme mappings etc.).
 ## Installation
 
