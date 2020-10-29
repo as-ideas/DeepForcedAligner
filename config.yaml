@@ -4,7 +4,7 @@ paths:
   metadata_path: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets/metadata.csv"
   data_dir: dfa_data
   checkpoint_dir: dfa_checkpoints
-  precomputed_mels: "/Users/cschaefe/workspace/ForwardTacotron/data/mel"
+  precomputed_mels:
 
 audio:
   sample_rate: 22050
