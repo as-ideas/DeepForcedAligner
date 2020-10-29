@@ -24,13 +24,21 @@ if __name__ == '__main__':
         assert checkpoint['symbols'] == symbols, 'Symbols from data do not match symbols from model!'
         print(f'Restored model with step {model.get_step()}')
     else:
-        print(f'Initializing new model from config {args.config}')
-        model = Aligner(n_mels=config['audio']['n_mels'],
-                        num_symbols=len(symbols)+1,
-                        **config['model'])
-        optim = optim.Adam(model.parameters(), lr=1e-4)
-        checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
-                      'config': config, 'symbols': symbols}
+        model_path = paths.checkpoint_dir / 'latest_model.pt'
+        if model_path.exists():
+            print(f'Restoring model from checkpoint: {model_path}')
+            checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
+            model = Aligner.from_checkpoint(checkpoint)
+            assert checkpoint['symbols'] == symbols, 'Symbols from data do not match symbols from model!'
+            print(f'Restored model with step {model.get_step()}')
+        else:
+            print(f'Initializing new model from config {args.config}')
+            model = Aligner(n_mels=config['audio']['n_mels'],
+                            num_symbols=len(symbols)+1,
+                            **config['model'])
+            optim = optim.Adam(model.parameters(), lr=1e-4)
+            checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
+                          'config': config, 'symbols': symbols}
 
     trainer = Trainer(paths=paths)
     trainer.train(checkpoint, train_params=config['training'])
