@@ -6,6 +6,9 @@ With this tool you can create accurate text-audio alignments given a bunch of au
 - **Polyglot:** By design, the DFA is language-agnostic and can align charater or phonemes.
 - **Robustness:** Alignment has a high tolerance for text errors and special (silent) characters.
 - **Convenience:** Easy installation with no extra dependencies. You can provide your own data in the standard LJSpeech format with no extra preprocessing (such as phoneme mappings etc.).
+
+The approach is based on training a simple speech recognition model with CTC loss on mel spectrograms extracted from the wav files.
+
 ## Installation
 
 Running on Python >=3.6
