@@ -51,5 +51,5 @@ You can provide your own mel spectrogams by setting in the config.yaml:
 ```
 Make sure that the mel names match the ids in the metafile, e.g. 
 ```
-  00001.mel ---> 00001|'First sample text'
+  00001.mel ---> 00001|First sample text
 ```
