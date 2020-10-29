@@ -1,7 +1,7 @@
 
 paths:
-  dataset_dir: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets"
-  metadata_path: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets/metadata.csv"
+  dataset_dir: LJSpeech-1.1
+  metadata_path: LJSpeech-1.1/metadata.csv
   data_dir: dfa_data
   checkpoint_dir: dfa_checkpoints
   precomputed_mels:
@@ -19,15 +19,15 @@ preprocessing:
   mel_dim_last: false # whether precomputed mels have mel channels as last dimension
 
 model:
-  lstm_dim: 128
-  conv_dim: 64
+  lstm_dim: 512
+  conv_dim: 512
 
 durations:
   method: 'dijkstra' # options: [dijkstra, beam]
 
 training:
   learning_rate: 0.0001
-  batch_size: 4
+  batch_size: 16
   epochs: 1000
   plot_steps: 1000
   checkpoint_steps: 10_000
