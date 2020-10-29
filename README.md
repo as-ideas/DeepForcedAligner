@@ -35,7 +35,7 @@ By default durations are put as numpy files into:
 ```
 Each character duration correspons to one mel time step, which translates to hop_length / sample_rate seconds in the wav file.
 
-## Model Checkpoints and Tensorboard
+## Tensorboard
 You can monitor the training with 
 ```
   tensorboard dfa_checkpoints
