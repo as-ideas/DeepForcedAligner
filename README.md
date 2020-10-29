@@ -43,6 +43,10 @@ You can monitor the training with
 ```
   tensorboard dfa_checkpoints
 ```
+## Using Your Own Dataset
+Just bring your dataset to the LJSpeech format. We recommend to clean and preprocess the text in the metafile.csv before
+running the DFA, e.g. lower-case, phonemization etc.
+
 
 ## Using Preprocessed Mel Spectrograms
 You can provide your own mel spectrogams by setting in the config.yaml:
