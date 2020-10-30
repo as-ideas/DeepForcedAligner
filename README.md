@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 Check out the following demo notebook for training and character duration extraction on the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset: 
 
-![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)(https://colab.research.google.com/github/as-ideas/DeepForcedAligner/blob/master/notebooks/train.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/as-ideas/DeepForcedAligner/blob/master/notebooks/train.ipynb)
 
 
 (1) Download the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset, set paths in config.yaml:
