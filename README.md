@@ -17,7 +17,13 @@ Running on Python >=3.6
 pip install -r requirements.txt
 ```
 
-## Example Data Prep and Model Training 
+## Example Training and Extraction
+
+Check out the following demo notebook for training and character duration extraction on the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset: 
+
+![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)
+
+
 (1) Download the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset, set paths in config.yaml:
 ```
   dataset_dir: LJSpeech
