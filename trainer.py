@@ -50,7 +50,7 @@ class Trainer:
         loss_sum = 0.
         start_epoch = model.get_step() // len(dataloader)
 
-        for epoch in range(start_epoch + 1, epochs):
+        for epoch in range(start_epoch + 1, epochs + 1):
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
             for i, batch in pbar:
                 pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
