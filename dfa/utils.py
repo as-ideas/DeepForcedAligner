@@ -22,7 +22,7 @@ def read_config(path: str) -> Dict[str, Any]:
     return config
 
 
-def save_config(config: dict, path: str) -> None:
+def save_config(config: Dict[str, Any], path: str) -> None:
     with open(path, 'w+', encoding='utf-8') as stream:
         yaml.dump(config, stream, default_flow_style=False)
 
