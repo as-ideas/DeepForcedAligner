@@ -22,7 +22,7 @@ class Extractor:
     def extract_durations_for_item(self, item_file: Tuple[dict, Path, Path]) -> Tuple[dict, np.array]:
         item, token_file, pred_file = item_file
         tokens_len, mel_len = item['tokens_len'], item['mel_len']
-        tokens = np.load(str(token_file), allow_pickle=False)
+        tokens = np.load(str(token_file), allow_pickle=False).astype(np.int)
         tokens = tokens[:tokens_len]
         pred = np.load(str(pred_file), allow_pickle=False)
         pred = pred[:mel_len, :]
