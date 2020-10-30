@@ -27,7 +27,7 @@ class Extractor:
         pred = np.load(str(pred_file), allow_pickle=False)
         pred = pred[:mel_len, :]
         if self.method == 'beam':
-            durations, _ = extract_durations_beam(pred, tokens, 10)
+            durations, _ = extract_durations_beam(tokens, pred, 10)
             durations = durations[0]
         else:
             durations = extract_durations_with_dijkstra(tokens, pred)
