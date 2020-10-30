@@ -15,7 +15,9 @@ from dfa.paths import Paths
 from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary
 
+
 class Extractor:
+
     def __init__(self, method):
         self.method = method
         
