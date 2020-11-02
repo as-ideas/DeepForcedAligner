@@ -1,10 +1,10 @@
 
 paths:
-  dataset_dir: LJSpeech-1.1                    # path to dataset containing wavs
-  metadata_path: LJSpeech-1.1/metadata.csv     # path to LJSpeech-style metafile with format: id|text
-  precomputed_mels:                            # replaces dataset_dir if set and points to already preprocessed mels
-  data_dir: dfa_data                           # directory to store preprocessed data
-  checkpoint_dir: dfa_checkpoints              # directory for model checkpoints and tensorboard
+  dataset_dir: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets"
+  metadata_path: "/Users/cschaefe/OneDrive - Axel Springer SE/Post Production Files Snippets/metadata.csv"
+  data_dir: dfa_data
+  checkpoint_dir: dfa_checkpoints
+  precomputed_mels: "/Users/cschaefe/workspace/ForwardTacotron/data/mel"
 
 audio:
   sample_rate: 22050

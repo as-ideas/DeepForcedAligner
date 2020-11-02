@@ -2,6 +2,7 @@ import argparse
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
 from pathlib import Path
+from random import Random
 from typing import Dict, Union
 
 import numpy as np
@@ -84,7 +85,12 @@ if __name__ == '__main__':
     dataset = []
     for i, item in tqdm.tqdm(enumerate(mapper), total=len(audio_files)):
         dataset.append(item)
-    
-    pickle_binary(dataset, paths.data_dir / 'dataset.pkl')
+
+    random = Random(42)
+    random.shuffle(dataset)
+    train_dataset = dataset[500:]
+    val_dataset = dataset[:500]
+    pickle_binary(train_dataset, paths.data_dir / 'train_dataset.pkl')
+    pickle_binary(val_dataset, paths.data_dir / 'val_dataset.pkl')
     pickle_binary(symbols, paths.data_dir / 'symbols.pkl')
     print('Preprocessing done.')

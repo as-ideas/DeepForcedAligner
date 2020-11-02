@@ -21,7 +21,7 @@ class Trainer:
         self.ctc_loss = CTCLoss()
 
         # Used for generating plots
-        longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / 'dataset.pkl')
+        longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / 'val_dataset.pkl')
         self.longest_mel = np.load(str(paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
         self.longest_tokens = np.load(str(paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
 
@@ -44,7 +44,7 @@ class Trainer:
         for g in optim.param_groups:
             g['lr'] = lr
 
-        dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'dataset.pkl', mel_dir=self.paths.mel_dir,
+        dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'train_dataset.pkl', mel_dir=self.paths.mel_dir,
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
         loss_sum = 0.
