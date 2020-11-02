@@ -98,11 +98,12 @@ class Trainer:
         device = next(model.parameters()).device
         for i, batch in enumerate(dataloader, 1):
             tokens, mel, tokens_len, mel_len = to_device(batch, device)
-            pred = model(mel)
+            with torch.no_grad():
+                pred = model(mel)
             pred = pred.transpose(0, 1).log_softmax(2)
             loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
             val_loss += loss.item()
-        model.eval()
+        model.train()
         return val_loss / len(dataloader)
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
