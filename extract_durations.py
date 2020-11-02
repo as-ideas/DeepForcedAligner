@@ -66,8 +66,8 @@ if __name__ == '__main__':
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
     assert symbols == checkpoint['symbols'], 'Symbols from dataset do not match symbols from model checkpoint!'
     tokenizer = Tokenizer(symbols)
-    dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
-                                token_dir=paths.token_dir, batch_size=args.batch_size)
+    dataloader = new_dataloader(dataset_path=paths.data_dir / 'train_dataset.pkl', mel_dir=paths.mel_dir,
+                                token_dir=paths.token_dir, batch_size=8)
 
     print(f'Performing STT model inference...')
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
@@ -82,7 +82,7 @@ if __name__ == '__main__':
             np.save(pred_target_dir / f'{item_id}.npy', pred, allow_pickle=False)
 
     print(f'Extracting durations...')
-    dataset = unpickle_binary(paths.data_dir / 'dataset.pkl')
+    dataset = unpickle_binary(paths.data_dir / 'train_dataset.pkl')
     item_files = []
     for item in dataset:
         file_name = item['item_id'] + '.npy'

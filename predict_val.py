@@ -14,7 +14,7 @@ from dfa.model import Aligner
 from dfa.paths import Paths
 from dfa.text import Tokenizer
 from dfa.utils import read_config, to_device, unpickle_binary
-
+from itertools import groupby
 
 
 if __name__ == '__main__':
@@ -43,8 +43,8 @@ if __name__ == '__main__':
 
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
     tokenizer = Tokenizer(symbols)
-    dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
-                                token_dir=paths.token_dir, batch_size=args.batch_size)
+    dataloader = new_dataloader(dataset_path=paths.data_dir / 'train_dataset.pkl', mel_dir=paths.mel_dir,
+                                token_dir=paths.token_dir, batch_size=4)
 
     model = Aligner.from_checkpoint(checkpoint).eval().to(device)
     print(f'Loaded model with step {model.get_step()} on device: {device}')
@@ -53,6 +53,7 @@ if __name__ == '__main__':
     print(f'Performing STT model inference...')
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
         tokens, mel, tokens_len, mel_len = to_device(batch, device)
+        mel = mel[:, mel_len//2, :]
         pred_batch = model(mel)
         for b in range(tokens.size(0)):
             this_mel_len = mel_len[b]
@@ -63,8 +64,7 @@ if __name__ == '__main__':
             np.save(pred_target_dir / f'{item_id}.npy', pred, allow_pickle=False)
 
     print(f'Transkribing...')
-    dataset = unpickle_binary(paths.data_dir / 'val_dataset.pkl')
-
+    dataset = unpickle_binary(paths.data_dir / 'train_dataset.pkl')
     result = []
     for item in dataset:
         file_name = item['item_id'] + '.npy'
@@ -73,11 +73,12 @@ if __name__ == '__main__':
         pred = np.load(str(pred_file), allow_pickle=False)
         mel_len = item['mel_len']
         pred = pred[:mel_len]
-        pred_max = np.argmax(pred, axis=1)[0]
-        text = tokenizer.decode(tokens)
-        pred_text = tokenizer.decode(pred_max)
-        result.append((item['item_id'], text, pred_text))
+        pred_max = np.argmax(pred, axis=1)
+        text = tokenizer.decode(tokens.tolist())
+        pred_text = tokenizer.decode(pred_max.tolist())
+        pred_text_collapsed = ''.join([k for k, g in groupby(pred_text.replace('_', '')) if k!=0])
+        result.append((item['item_id'], text, pred_text_collapsed, pred_text))
 
     with open('output/transkribed.csv', 'w+', encoding='utf-8') as f:
-        for a, b, c in result:
-            f.write(f'{a}|{b}|{c}\n')
+        for a, b, c, d in result:
+            f.write(f'{a}|{b}|{c}|{d}\n')
