@@ -47,6 +47,9 @@ class Trainer:
         dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'train_dataset.pkl', mel_dir=self.paths.mel_dir,
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
+        val_dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'val_dataset.pkl', mel_dir=self.paths.mel_dir,
+                                    token_dir=self.paths.token_dir, batch_size=8)
+
         loss_sum = 0.
         start_epoch = model.get_step() // len(dataloader)
 
@@ -69,7 +72,7 @@ class Trainer:
 
                 loss_sum += loss.item()
 
-                self.writer.add_scalar('CTC_Loss', loss.item(), global_step=model.get_step())
+                self.writer.add_scalar('CTC_Loss/train', loss.item(), global_step=model.get_step())
                 self.writer.add_scalar('Params/batch_size', batch_size, global_step=model.get_step())
                 self.writer.add_scalar('Params/learning_rate', lr, global_step=model.get_step())
 
@@ -81,11 +84,26 @@ class Trainer:
                 if model.get_step() % plot_steps == 0:
                     self.generate_plots(model, tokenizer)
 
+            val_loss = self.evaluate(model, val_dataloader)
+            self.writer.add_scalar('CTC_Loss/val', val_loss, global_step=model.get_step())
             loss_sum = 0
             latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
             torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
                         'config': config, 'symbols': symbols},
                        latest_checkpoint)
+
+    def evaluate(self, model: Aligner, dataloader):
+        val_loss = 0.
+        model.eval()
+        device = next(model.parameters()).device
+        for i, batch in enumerate(dataloader, 1):
+            tokens, mel, tokens_len, mel_len = to_device(batch, device)
+            pred = model(mel)
+            pred = pred.transpose(0, 1).log_softmax(2)
+            loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+            val_loss += loss.item()
+        model.eval()
+        return val_loss / len(dataloader)
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
         model.eval()
