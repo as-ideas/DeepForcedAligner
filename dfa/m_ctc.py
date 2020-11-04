@@ -9,7 +9,7 @@ import pdb
 import copy
 import time
 
-cuda = False
+cuda = True
 if cuda:
     floatX = T.cuda.FloatTensor
     intX = T.cuda.IntTensor
