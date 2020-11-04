@@ -61,7 +61,9 @@ class Trainer:
                 pred = model(mel)
                 pred = pred.transpose(0, 1).log_softmax(2)
 
-                _, loss = ctc_ent_loss_log(pred, mel_len, tokens, tokens_len)
+                H, cost = ctc_ent_loss_log(pred, mel_len, tokens, tokens_len)
+                loss = 0.1 * H + (1 - 0.1) * cost
+
                 loss = loss.mean()
 
                 optim.zero_grad()

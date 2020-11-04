@@ -8,8 +8,8 @@ import numpy as np
 import pdb
 import copy
 import time
-
-cuda = True
+import torch
+cuda = torch.cuda.is_available()
 if cuda:
     floatX = T.cuda.FloatTensor
     intX = T.cuda.IntTensor
