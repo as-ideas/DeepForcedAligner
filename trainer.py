@@ -5,6 +5,7 @@ from torch.nn import CTCLoss
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 
+from custom_ctc import ctc_ent_loss, ctc_ent_loss_log
 from dfa.dataset import new_dataloader, get_longest_mel_id
 from dfa.duration_extraction import extract_durations_with_dijkstra
 from dfa.model import Aligner
@@ -60,7 +61,8 @@ class Trainer:
                 pred = model(mel)
                 pred = pred.transpose(0, 1).log_softmax(2)
 
-                loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                _, loss = ctc_ent_loss_log(pred, mel_len, tokens, tokens_len)
+                loss = loss.mean()
 
                 optim.zero_grad()
                 loss.backward()
