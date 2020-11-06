@@ -72,6 +72,8 @@ class Trainer:
 
                 loss = loss + loss_ctc
 
+                optim.zero_grad()
+                optim_tts.zero_grad()
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 torch.nn.utils.clip_grad_norm_(model_tts.parameters(), 1.0)
@@ -80,7 +82,8 @@ class Trainer:
 
                 loss_sum += loss.item()
 
-                self.writer.add_scalar('CTC_Loss', loss.item(), global_step=model.get_step())
+                self.writer.add_scalar('CTC_Loss', loss_ctc.item(), global_step=model.get_step())
+                self.writer.add_scalar('L1_Loss', loss.item(), global_step=model.get_step())
                 self.writer.add_scalar('Params/batch_size', batch_size, global_step=model.get_step())
                 self.writer.add_scalar('Params/learning_rate', lr, global_step=model.get_step())
 
