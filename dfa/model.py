@@ -76,7 +76,7 @@ class TTSModel(torch.nn.Module):
         self.lin = torch.nn.Linear(conv_dim, n_mels)
         self.n_mels = n_mels
 
-    def forward(self, x, mel):
+    def forward(self, x):
         if self.train:
             self.step += 1
         for conv in self.convs:

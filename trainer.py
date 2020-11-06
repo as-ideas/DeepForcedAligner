@@ -64,7 +64,7 @@ class Trainer:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
-                pred_tts = model_tts(pred.softmax(-1), mel)
+                pred_tts = model_tts(pred.softmax(-1))
 
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss_ctc = self.ctc_loss(pred, tokens, mel_len, tokens_len)
@@ -96,7 +96,7 @@ class Trainer:
                                self.paths.checkpoint_dir / f'model_step_{model.get_step() // 1000}k.pt')
 
                 if model.get_step() % plot_steps == 0:
-                    self.generate_plots(model, tokenizer)
+                    self.generate_plots(model, model_tts, tokenizer)
 
             loss_sum = 0
             latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
@@ -106,17 +106,20 @@ class Trainer:
             torch.save(checkpoint,
                        latest_checkpoint)
 
-    def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
+    def generate_plots(self, model: Aligner, model_tts, tokenizer: Tokenizer) -> None:
         model.eval()
+        model_tts.eval()
         device = next(model.parameters()).device
         longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
-        pred = model(longest_mel)[0].detach().cpu().softmax(dim=-1)
+        pred = model(longest_mel)
+        pred_mel = model_tts(pred.softmax(-1))
+        pred = pred[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
         pred_text = tokenizer.decode(pred_max)
         target_text = tokenizer.decode(self.longest_tokens)
         target_duration_rep = []
-        for i in  range(min(len(target_text), len(durations))):
+        for i in range(min(len(target_text), len(durations))):
             target_duration_rep.append(target_text[i]*int(durations[i]))
         target_duration_rep = ''.join(target_duration_rep)
         self.writer.add_text('Text/Prediction', '    ' + pred_text, global_step=model.get_step())
@@ -124,9 +127,19 @@ class Trainer:
                              '    ' + target_duration_rep, global_step=model.get_step())
         self.writer.add_text('Text/Target', '    ' + target_text, global_step=model.get_step())
         model.train()
+        model_tts.train()
 
         pred = pred[:400, :]
         mel = self.longest_mel[:400, :]
+        mel = np.flip(mel, axis=1).swapaxes(0, 1)
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=300)
+        plt.xticks(np.arange(1, mel.shape[1], 20))
+        ax1.imshow(mel, interpolation='nearest', aspect='auto')
+        ax2.plot(1 - pred[:, 0], color='red', linewidth=1)
+        ax2.grid(True, axis='x', which='both')
+        self.writer.add_figure('Plots/Target', fig, global_step=model.get_step())
+
+        mel = pred_mel[0].detach().cpu().numpy()
         mel = np.flip(mel, axis=1).swapaxes(0, 1)
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=300)
         plt.xticks(np.arange(1, mel.shape[1], 20))
