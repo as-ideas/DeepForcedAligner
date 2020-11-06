@@ -114,7 +114,10 @@ class Trainer:
         pred_max = pred.max(1)[1].numpy().tolist()
         pred_text = tokenizer.decode(pred_max)
         target_text = tokenizer.decode(self.longest_tokens)
-        target_duration_rep = ''.join(c * durations[i] for i, c in range(min(len(target_text), len(durations))))
+        target_duration_rep = []
+        for i in  range(min(len(target_text), len(durations))):
+            target_duration_rep.append(target_text[i]*int(durations[i]))
+        target_duration_rep = ''.join(target_duration_rep)
         self.writer.add_text('Text/Prediction', '    ' + pred_text, global_step=model.get_step())
         self.writer.add_text('Text/Target_Duration_Repeated',
                              '    ' + target_duration_rep, global_step=model.get_step())
