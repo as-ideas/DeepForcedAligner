@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import tqdm
+import matplotlib.pyplot as plt
 from torch.nn import CTCLoss
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
@@ -123,3 +124,13 @@ class Trainer:
                              '    ' + target_duration_rep, global_step=model.get_step())
         self.writer.add_text('Text/Target', '    ' + target_text, global_step=model.get_step())
         model.train()
+
+        pred = pred[:400, :]
+        mel = self.longest_mel[:400, :]
+        mel = np.flip(mel, axis=1).swapaxes(0, 1)
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=300)
+        plt.xticks(np.arange(1, mel.shape[1], 20))
+        ax1.imshow(mel, interpolation='nearest', aspect='auto')
+        ax2.plot(1 - pred[:, 0], color='red', linewidth=1)
+        ax2.grid(True, axis='x', which='both')
+        self.writer.add_figure('Plots/Prediction', fig, global_step=model.get_step())
