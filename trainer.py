@@ -139,7 +139,7 @@ class Trainer:
         ax2.grid(True, axis='x', which='both')
         self.writer.add_figure('Plots/Target', fig, global_step=model.get_step())
 
-        mel = pred_mel[0].detach().cpu().numpy()
+        mel = pred_mel[0].detach().cpu().numpy()[:400, :]
         mel = np.flip(mel, axis=1).swapaxes(0, 1)
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, dpi=300)
         plt.xticks(np.arange(1, mel.shape[1], 20))
