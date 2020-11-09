@@ -78,7 +78,8 @@ class TTSModel(torch.nn.Module):
             BatchNormConv(conv_dim, conv_dim, 5),
             BatchNormConv(conv_dim, conv_dim, 5),
         ])
-        self.lin = torch.nn.Linear(conv_dim, n_mels)
+        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
+        self.lin = torch.nn.Linear(2*lstm_dim, n_mels)
         self.n_mels = n_mels
 
     def forward(self, x):
@@ -86,6 +87,7 @@ class TTSModel(torch.nn.Module):
             self.step += 1
         for conv in self.convs:
             x = conv(x)
+        x, _ = self.rnn(x)
         x = self.lin(x)
         return x
 
