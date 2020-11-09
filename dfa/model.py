@@ -74,7 +74,7 @@ class TTSModel(torch.nn.Module):
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
         self.convs = nn.ModuleList([
-            BatchNormConv(num_symbols + n_mels, conv_dim, 5),
+            BatchNormConv(num_symbols, conv_dim, 5),
             BatchNormConv(conv_dim, conv_dim, 5),
             BatchNormConv(conv_dim, conv_dim, 5),
         ])
