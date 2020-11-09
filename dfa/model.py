@@ -95,7 +95,9 @@ class TTSModel(torch.nn.Module):
     def forward(self, x, mel):
         if self.train:
             self.step += 1
-        mel_in = torch.cat([torch.zeros(x.size(0), 1, self.n_mels), mel[:, :-1, :]], dim=1)
+
+        device = next(self.parameters()).device
+        mel_in = torch.cat([torch.zeros(x.size(0), 1, self.n_mels, device=device), mel[:, :-1, :]], dim=1)
         mel_in = self.prenet(mel_in)
         x = torch.cat([x, mel_in], dim=-1)
         x, _ = self.rnn(x)
