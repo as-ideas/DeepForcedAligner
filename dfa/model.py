@@ -88,6 +88,8 @@ class TTSModel(torch.nn.Module):
     def forward(self, x):
         if self.train:
             self.step += 1
+        for conv in self.convs:
+            x = conv(x)
         x, _ = self.rnn(x)
         x = self.lin(x)
         return x
