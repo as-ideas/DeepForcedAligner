@@ -73,7 +73,7 @@ class TTSModel(torch.nn.Module):
                  conv_dim: int) -> None:
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
-        self.rnn = torch.nn.LSTM(num_symbols, lstm_dim, batch_first=True, bidirectional=True)
+        self.rnn = torch.nn.LSTM(num_symbols-1, lstm_dim, batch_first=True, bidirectional=True)
         self.lin = torch.nn.Linear(2*lstm_dim, n_mels)
         self.n_mels = n_mels
 
