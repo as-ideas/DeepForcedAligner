@@ -19,12 +19,19 @@ def to_adj_matrix(mat):
     col_ind = []
     data = []
 
-    for i in range(rows):
-        for j in range(cols):
+    def dia_range(row, width=100):
+        col = int(row * cols / float(rows))
+        left = max(0, col-width)
+        right = min(cols, col+width)
+        return range(left, right)
 
-            node = to_node_index(i, j, cols)
+    for i in range(rows):
+        for j in dia_range(i):
+
+            #print(f'{i} {j} / {rows} {cols} ')
 
             if j < cols - 1:
+                node = to_node_index(i, j, cols)
                 right_node = to_node_index(i, j + 1, cols)
                 weight_right = mat[i, j + 1]
                 row_ind.append(node)
@@ -32,6 +39,7 @@ def to_adj_matrix(mat):
                 data.append(weight_right)
 
             if i < rows - 1 and j < cols:
+                node = to_node_index(i, j, cols)
                 bottom_node = to_node_index(i + 1, j, cols)
                 weight_bottom = mat[i + 1, j]
                 row_ind.append(node)
@@ -39,13 +47,16 @@ def to_adj_matrix(mat):
                 data.append(weight_bottom)
 
             if i < rows - 1 and j < cols - 1:
+                node = to_node_index(i, j, cols)
                 bottom_right_node = to_node_index(i + 1, j + 1, cols)
                 weight_bottom_right = mat[i + 1, j + 1]
                 row_ind.append(node)
                 col_ind.append(bottom_right_node)
                 data.append(weight_bottom_right)
 
+    print('to coo...')
     adj_mat = coo_matrix((data, (row_ind, col_ind)), shape=(rows * cols, rows * cols))
+    print('to csr...')
     return adj_mat.tocsr()
 
 
@@ -54,10 +65,12 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     Extracts durations from the attention matrix by finding the shortest monotonic path from
     top left to bottom right.
     """
-
+    print('prepare adj matrix...')
     pred_max = pred[:, tokens]
     path_probs = 1. - pred_max
     adj_matrix = to_adj_matrix(path_probs)
+
+    print('start dij...')
     dist_matrix, predecessors = dijkstra(csgraph=adj_matrix, directed=True,
                                          indices=0, return_predecessors=True)
     path = []
@@ -66,6 +79,7 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
         path.append(pr_index)
         pr_index = predecessors[pr_index]
     path.reverse()
+    print('dij done.')
 
     # append first and last node
     path = [0] + path + [dist_matrix.size-1]
