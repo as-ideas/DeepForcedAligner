@@ -87,16 +87,18 @@ class Preprocessor:
             start = min_t
 
         for i, wav in enumerate(wavs):
-            name = wav.stem
-            start = starts[i][0]
-            if i < len(wavs) - 1:
-                end = starts[i + 1][0]
-            else:
-                end = len(wav_long)
-            wav_cut = wav_long[start:end]
-            wav_cut = trim_end(wav_cut)
-            sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
-
+            try:
+                name = wav.stem
+                start = starts[i][0]
+                if i < len(wavs) - 1:
+                    end = starts[i + 1][0]
+                else:
+                    end = len(wav_long)
+                wav_cut = wav_long[start:end]
+                wav_cut = trim_end(wav_cut)
+                sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
+            except Exception as e:
+                print(e)
         return scores
 
 
