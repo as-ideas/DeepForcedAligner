@@ -94,7 +94,7 @@ class Preprocessor:
             else:
                 end = len(wav_long)
             wav_cut = wav_long[start:end]
-            wav_cut = trim_end(wav_cut)
+            #wav_cut = trim_end(wav_cut)
             sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
 
         return scores
