@@ -57,49 +57,52 @@ class Preprocessor:
         self.out_path = out_path
 
     def __call__(self, file_name):
-        print(f'Generating for dir {file_name}')
-        wav_path = self.wav_main / file_name
-        wav_long_path = self.wav_long_main / f'{file_name[:7]}.wav'
+        try:
+            print(f'Generating for dir {file_name}')
+            wav_path = self.wav_main / file_name
+            wav_long_path = self.wav_long_main / f'{file_name[:7]}.wav'
 
-        wavs = sorted(list(wav_path.glob('**/*.wav')))
-        wav_long = self.audio.load_wav(wav_long_path)
-        starts = []
-        start = 0
+            wavs = sorted(list(wav_path.glob('**/*.wav')))
+            wav_long = self.audio.load_wav(wav_long_path)
+            starts = []
+            start = 0
 
-        scores = []
-        for i, wav in enumerate(wavs):
-            wav_snippet = self.audio.load_wav(wav)
-            window = min(len(wav_snippet), 50000)
-            stride = 100
-            wav_part = wav_snippet[0:window:stride]
-            min_diff = 9999999
-            min_t = start
-            for t in range(start, min(start + 2500000, len(wav_long) - window)):
-                diff = np.sum(np.abs(wav_long[t:t + window:stride] - wav_part))
-                if diff < min_diff:
-                    min_diff = diff
-                    min_t = t
-                if min_diff < 15 and diff > min_diff + 10:
-                    break
-            print(f'{file_name} {wav.stem} {min_diff} {min_t}')
-            starts.append((min_t, min_diff))
-            scores.append((wav.stem, min_diff))
-            start = min_t
+            scores = []
+            for i, wav in enumerate(wavs):
+                wav_snippet = self.audio.load_wav(wav)
+                window = min(len(wav_snippet), 50000)
+                stride = 100
+                wav_part = wav_snippet[0:window:stride]
+                min_diff = 9999999
+                min_t = start
+                for t in range(start, min(start + 2500000, len(wav_long) - window)):
+                    diff = np.sum(np.abs(wav_long[t:t + window:stride] - wav_part))
+                    if diff < min_diff:
+                        min_diff = diff
+                        min_t = t
+                    if min_diff < 15 and diff > min_diff + 10:
+                        break
+                print(f'{file_name} {wav.stem} {min_diff} {min_t}')
+                starts.append((min_t, min_diff))
+                scores.append((wav.stem, min_diff))
+                start = min_t
 
-        for i, wav in enumerate(wavs):
-            try:
-                name = wav.stem
-                start = starts[i][0]
-                if i < len(wavs) - 1:
-                    end = starts[i + 1][0]
-                else:
-                    end = len(wav_long)
-                wav_cut = wav_long[start:end]
-                wav_cut = trim_end(wav_cut)
-                sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
-            except Exception as e:
-                print(e)
-        return scores
+            for i, wav in enumerate(wavs):
+                try:
+                    name = wav.stem
+                    start = starts[i][0]
+                    if i < len(wavs) - 1:
+                        end = starts[i + 1][0]
+                    else:
+                        end = len(wav_long)
+                    wav_cut = wav_long[start:end]
+                    wav_cut = trim_end(wav_cut)
+                    sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
+                except Exception as e:
+                    print(e)
+            return scores
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
