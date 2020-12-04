@@ -17,7 +17,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = read_config(args.config)
     paths = Paths.from_config(config['paths'])
-    checkpoint = torch.load('/Users/cschaefe/workspace/DeepForcedAligner/dfa_checkpoints/latest_model.pt', map_location=torch.device('cpu'))
+    checkpoint = torch.load('/Users/cschaefe/workspace/DeepForcedAligner/dfa_checkpoints/model_step_100k.pt', map_location=torch.device('cpu'))
     config = checkpoint['config']
     symbols = checkpoint['symbols']
     audio = Audio.from_config(config['audio'])

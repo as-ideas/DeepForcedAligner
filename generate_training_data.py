@@ -13,6 +13,7 @@ from dfa.utils import read_metafile
 from dfa.utils import read_config
 from dfa.paths import Paths
 
+
 class Cutter:
 
     def __init__(self, audio, tokenizer, model, metadata):
@@ -27,6 +28,7 @@ class Cutter:
         snippets_dir = Path(snippets_dir)
         wav_ids = [w.stem for w in snippets_dir.glob('**/*.wav')]
         id_texts = [(id, t) for id, t in self.metadata if id in wav_ids]
+        assert len(id_texts) == len(wav_ids)
         tokens_list = [self.tokenizer(t) for _, t in id_texts]
         tokens_flat = list(itertools.chain.from_iterable(tokens_list))
         tokens_flat = np.array(tokens_flat)
@@ -69,7 +71,7 @@ if __name__ == '__main__':
     metafile = '/Users/cschaefe/datasets/ASVoice4/metadata_clean.csv'
     data_dir = '/Users/cschaefe/datasets/ASVoice4'
     wav_dir = '/Users/cschaefe/Axel Springer SE/TTS Audio Service (OG) - Post Production files (incl. breathing)'
-    out_dir = '/Users/cschaefe/datasets/ASVoice4_breathing_cutted'
+    out_dir = '/Users/cschaefe/datasets/ASVoice4_breathing_cutted_2'
 
     metadata = []
     with open(metafile, 'r', encoding='utf-8') as f:
@@ -87,8 +89,9 @@ if __name__ == '__main__':
     for i, snippet_dir in enumerate(snippet_dirs, 1):
         snippet_dir = data_dir / snippet_dir
         wav_name = Path(snippet_dir).stem[:7] # this is really custom
-        #if wav_name != 'r_00019':
-        #    continue
         print(f'Generate data for dir {i} / {len(snippet_dirs)}: {snippet_dir}')
         wav_path = wav_dir / f'{wav_name}.wav'
-        cutter(snippet_dir, wav_path, out_path=out_dir)
+        try:
+            cutter(snippet_dir, wav_path, out_path=out_dir)
+        except Exception as e:
+            print(e)

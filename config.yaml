@@ -7,7 +7,7 @@ paths:
   checkpoint_dir: dfa_checkpoints              # directory for model checkpoints and tensorboard
 
 audio:
-  sample_rate: 22050
+  sample_rate: 48000
   n_filters: 1024
   n_mels: 80
   win_length: 1024
