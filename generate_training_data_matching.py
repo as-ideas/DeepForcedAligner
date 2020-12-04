@@ -65,12 +65,12 @@ class Preprocessor:
         wav_long = self.audio.load_wav(wav_long_path)
         starts = []
         start = 0
-        window = 50000
-        stride = 100
 
         scores = []
         for i, wav in enumerate(wavs):
             wav_snippet = self.audio.load_wav(wav)
+            window = min(len(wav_snippet), 50000)
+            stride = 100
             wav_part = wav_snippet[0:window:stride]
             min_diff = 9999999
             min_t = start
@@ -94,7 +94,7 @@ class Preprocessor:
             else:
                 end = len(wav_long)
             wav_cut = wav_long[start:end]
-            #wav_cut = trim_end(wav_cut)
+            wav_cut = trim_end(wav_cut)
             sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
 
         return scores
