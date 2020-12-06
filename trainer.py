@@ -64,14 +64,15 @@ class Trainer:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
-                pred_tts = model_tts(pred.softmax(-1)[:, :, 1:])
+                pred_tts = model_tts(pred.softmax(-1)[:, :, :])
 
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss_ctc = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
                 loss = torch.nn.functional.l1_loss(pred_tts, mel)
 
-                loss = loss + 0.1 * loss_ctc
+                factor = 1. / model.get_step()
+                loss = loss + factor * loss_ctc
 
                 optim.zero_grad()
                 optim_tts.zero_grad()
@@ -112,7 +113,7 @@ class Trainer:
         device = next(model.parameters()).device
         longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
         pred = model(longest_mel)
-        pred_mel = model_tts(pred.softmax(-1)[:, :, 1:])
+        pred_mel = model_tts(pred.softmax(-1)[:, :, :])
         pred = pred[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
