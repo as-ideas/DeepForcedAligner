@@ -71,7 +71,9 @@ class Trainer:
 
                 loss = torch.nn.functional.l1_loss(pred_tts, mel)
 
-                factor = 1. / model.get_step()
+                factor = 1.
+                if model.get_step() > 2000:
+                    factor = 0.
                 loss = loss + factor * loss_ctc
 
                 optim.zero_grad()
