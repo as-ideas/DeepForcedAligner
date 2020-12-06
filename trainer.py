@@ -64,14 +64,21 @@ class Trainer:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
-                pred_tts = model_tts(pred.softmax(-1)[:, :, 1:])
+                mask = torch.zeros(pred.shape, device=device) - 9999.
+                for b in range(pred.size(0)):
+                    t = tokens[b]
+                    mask[b, :, t] = 0
 
-                pred = pred.transpose(0, 1).log_softmax(2)
-                loss_ctc = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                pred = pred + mask
+
+                pred_tts = model_tts(pred.softmax(-1)[:, :, :])
+
+                #pred = pred.transpose(0, 1).log_softmax(2)
+                loss_ctc = 0.#self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
                 loss = torch.nn.functional.l1_loss(pred_tts, mel)
 
-                loss = loss + 0.1 * loss_ctc
+                loss = loss + 0. * loss_ctc
 
                 optim.zero_grad()
                 optim_tts.zero_grad()
@@ -83,7 +90,7 @@ class Trainer:
 
                 loss_sum += loss.item()
 
-                self.writer.add_scalar('CTC_Loss', loss_ctc.item(), global_step=model.get_step())
+                #self.writer.add_scalar('CTC_Loss', loss_ctc.item(), global_step=model.get_step())
                 self.writer.add_scalar('L1_Loss', loss.item(), global_step=model.get_step())
                 self.writer.add_scalar('Params/batch_size', batch_size, global_step=model.get_step())
                 self.writer.add_scalar('Params/learning_rate', lr, global_step=model.get_step())
@@ -112,7 +119,13 @@ class Trainer:
         device = next(model.parameters()).device
         longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
         pred = model(longest_mel)
-        pred_mel = model_tts(pred.softmax(-1)[:, :, 1:])
+
+        mask = torch.zeros(pred.shape, device=device) - 9999.
+        t = torch.tensor(self.longest_tokens, device=device).long()
+        mask[0, :, t] = 0
+        pred = pred + mask
+
+        pred_mel = model_tts(pred.softmax(-1)[:, :, :])
         pred = pred[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
