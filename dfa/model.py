@@ -94,7 +94,7 @@ class TTSModel(torch.nn.Module):
         emb_range = torch.range(0, self.num_symbols-1, device=device).long()
         emb_range = self.embedding(emb_range)
         batch, time, vdim = x_in.size()
-        x = torch.zeros((batch, time, 128))
+        x = torch.zeros((batch, time, 128), device=device)
         for b in range(x_in.size(0)):
             for t in range(x.size(1)):
                 v = x_in[b, t, :][:, None]
