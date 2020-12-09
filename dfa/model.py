@@ -73,8 +73,9 @@ class TTSModel(torch.nn.Module):
                  conv_dim: int) -> None:
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
+        self.embedding = nn.Embedding(num_symbols, embedding_dim=128)
         self.convs = nn.ModuleList([
-            BatchNormConv(num_symbols, conv_dim, 3),
+            BatchNormConv(128, conv_dim, 3),
             nn.Dropout(p=0.5),
             BatchNormConv(conv_dim, conv_dim, 3),
             nn.Dropout(p=0.5),
@@ -84,10 +85,22 @@ class TTSModel(torch.nn.Module):
         self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
         self.lin = torch.nn.Linear(2*lstm_dim, n_mels)
         self.n_mels = n_mels
+        self.num_symbols = num_symbols
 
-    def forward(self, x):
+    def forward(self, x_in):
         if self.train:
             self.step += 1
+        device = next(self.parameters()).device
+        emb_range = torch.range(0, self.num_symbols-1, device=device).long()
+        emb_range = self.embedding(emb_range)
+        batch, time, vdim = x_in.size()
+        x = torch.zeros((batch, time, 128))
+        for b in range(x_in.size(0)):
+            for t in range(x.size(1)):
+                v = x_in[b, t, :][:, None]
+                v = v * emb_range
+                v = torch.sum(v, dim=0)
+                x[b, t, :] = v
         for conv in self.convs:
             x = conv(x)
         x, _ = self.rnn(x)
