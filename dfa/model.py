@@ -95,17 +95,16 @@ class TTSModel(torch.nn.Module):
         emb_range = self.embedding(emb_range)
         batch, time, vdim = x_in.size()
         x = torch.zeros((batch, time, 128), device=device)
-        for b in range(x_in.size(0)):
-            for t in range(x.size(1)):
-                v = x_in[b, t, :][:, None]
-                v = v * emb_range
-                v = torch.sum(v, dim=0)
-                x[b, t, :] = v
+        for t in range(x.size(1)):
+            v = x_in[:, t, :][:, :, None]
+            v = v * emb_range[None, :, :]
+            v = torch.sum(v, dim=1)
+            x[:, t, :] = v
         for conv in self.convs:
             x = conv(x)
-        x, _ = self.rnn(x)
-        x = self.lin(x)
-        return x
+            x, _ = self.rnn(x)
+            x = self.lin(x)
+            return x
 
     def get_step(self):
         return self.step.data.item()
