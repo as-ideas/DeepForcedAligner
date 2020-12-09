@@ -64,7 +64,7 @@ class Trainer:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
-                pred_tts = model_tts(pred.softmax(-1)[:, :, :])
+                pred_tts = model_tts(pred[:, :, :])
 
                 pred = pred.transpose(0, 1).log_softmax(2)
                 loss_ctc = self.ctc_loss(pred, tokens, mel_len, tokens_len)
@@ -113,7 +113,7 @@ class Trainer:
         device = next(model.parameters()).device
         longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
         pred = model(longest_mel)
-        pred_mel = model_tts(pred.softmax(-1)[:, :, :])
+        pred_mel = model_tts(pred[:, :, :])
         pred = pred[0].detach().cpu().softmax(dim=-1)
         durations = extract_durations_with_dijkstra(self.longest_tokens, pred.numpy())
         pred_max = pred.max(1)[1].numpy().tolist()
