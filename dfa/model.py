@@ -91,7 +91,7 @@ class TTSModel(torch.nn.Module):
         if self.train:
             self.step += 1
         device = next(self.parameters()).device
-        x_in[:, :, 0] = 0.
+        x_in[:, :, 0] = -9999
         x_in = x_in.softmax(-1)
         emb_range = torch.range(0, self.num_symbols-1, device=device).long()
         emb_range = self.embedding(emb_range)
