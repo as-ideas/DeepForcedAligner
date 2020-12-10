@@ -11,7 +11,7 @@ import tqdm
 from dfa.audio import Audio
 from dfa.paths import Paths
 from dfa.text import Tokenizer
-from dfa.utils import get_files, read_config, pickle_binary, read_metafile
+from dfa.utils import get_files, read_config, pickle_binary, read_metafile, unpickle_binary
 
 
 class Preprocessor:
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     print(f'Config: {args.config}\n'
           f'Target data directory: {paths.data_dir}')
     
-    text_dict = read_metafile(paths.metadata_path)
+    text_dict = unpickle_binary('/Users/cschaefe/workspace/ForwardTacotron/text_dict.pkl')# read_metafile(paths.metadata_path)
     symbols = set()
     for text in text_dict.values():
         symbols.update(set(text))
@@ -88,9 +88,10 @@ if __name__ == '__main__':
 
     random = Random(42)
     random.shuffle(dataset)
-    train_dataset = dataset[500:]
-    val_dataset = dataset[:500]
+    train_dataset = [d for d in dataset if 'biːdən' not in text_dict[d['item_id']]]
+    val_dataset = [d for d in dataset if 'biːdən' in text_dict[d['item_id']]]
     pickle_binary(train_dataset, paths.data_dir / 'train_dataset.pkl')
     pickle_binary(val_dataset, paths.data_dir / 'val_dataset.pkl')
     pickle_binary(symbols, paths.data_dir / 'symbols.pkl')
+    print(f'len train {len(train_dataset)} len val {len(val_dataset)}')
     print('Preprocessing done.')
