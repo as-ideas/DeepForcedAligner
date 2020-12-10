@@ -31,11 +31,15 @@ class Aligner(torch.nn.Module):
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
         self.convs = nn.ModuleList([
-            BatchNormConv(n_mels, conv_dim, 5),
-            BatchNormConv(conv_dim, conv_dim, 5),
-            BatchNormConv(conv_dim, conv_dim, 5),
+            BatchNormConv(n_mels, conv_dim, 3),
+            nn.Dropout(p=0.5),
+            BatchNormConv(conv_dim, conv_dim, 3),
+            nn.Dropout(p=0.5),
+            BatchNormConv(conv_dim, conv_dim, 3),
+            nn.Dropout(p=0.5),
         ])
-        self.lin = torch.nn.Linear(conv_dim, num_symbols)
+        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
+        self.lin = torch.nn.Linear(2 * lstm_dim, num_symbols)
 
     def forward(self, x):
         if self.train:
