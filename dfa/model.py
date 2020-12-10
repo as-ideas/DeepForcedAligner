@@ -46,7 +46,7 @@ class Aligner(torch.nn.Module):
             self.step += 1
         for conv in self.convs:
             x = conv(x)
-        x, _ = self.lstm(x)
+        x, _ = self.rnn(x)
         x = self.lin(x)
         return x
 
