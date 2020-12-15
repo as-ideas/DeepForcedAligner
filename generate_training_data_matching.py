@@ -164,9 +164,9 @@ if __name__ == '__main__':
     config = read_config(args.config)
     audio = Audio.from_config(config['audio'])
 
-    wav_main = Path('/Users/cschaefe/datasets/ASVoice4')
-    wav_long_main = Path('/Users/cschaefe/Axel Springer SE/TTS Audio Service (OG) - Post Production files (incl. breathing)')
-    out_path = Path('/Users/cschaefe/datasets/ASVoice4_breathing_cutted')
+    wav_main = Path('/data/datasets/ASVoice4')
+    wav_long_main = Path('/data/datasets/ASVoice4_breathing')
+    out_path = Path('/data/datasets/ASVoice4_breathing_cutted_2')
     out_path.mkdir(parents=True, exist_ok=True)
 
     snippet_dirs = sorted(list(next(os.walk(wav_main))[1]))
