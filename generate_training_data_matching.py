@@ -115,8 +115,9 @@ class Preprocessor:
                 scores.append((wav.stem, min_diff))
                 start = min_t
 
+            end_startpoints = [len(wav_long)] + list(reversed([s for s, _ in starts])) + [0]
+
             ends = []
-            end = len(wav_long)
             scores_ends = []
             for i, wav in enumerate(reversed(wavs)):
                 wav_snippet = self.audio.load_wav(wav)
@@ -125,31 +126,35 @@ class Preprocessor:
                 stride = 100
                 wav_part = wav_snippet[snippet_end-window:snippet_end:stride]
                 min_diff = 9999999
-                min_t = end
-                for t in range(end, max(end - 2500000, window), -1):
+                min_t = end_startpoints[i]
+                for t in range(end_startpoints[i], max(end_startpoints[i+1], window), -1):
                     diff = np.sum(np.abs(wav_long[t - window:t:stride] - wav_part))
                     if diff < min_diff:
                         min_diff = diff
                         min_t = t
                 print(f'{file_name} (end) {wav.stem} {min_diff} {min_t}')
+                min_t += (hp.vad_window_length * hp.vad_sample_rate) // 1000 * (hp.min_voice_length + 1)
                 ends.append((min_t, min_diff))
                 scores_ends.append((wav.stem, min_diff))
-                end = min_t
 
             scores_ends.reverse()
             ends.reverse()
 
             for i, wav in enumerate(wavs):
+                wav_snippet = self.audio.load_wav(wav)
                 name = wav.stem
                 start = starts[i][0]
                 end = ends[i][0]
                 wav_cut = wav_long[start:end]
                 wav_cut = trim_end(wav_cut)
+                print(f'{i} snippet len: {len(wav_snippet)} end-start: {end-start}')
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
+
+            #scores = [a[0] + b[0] for a, b in zip(scores, scores_ends)]
             return scores
         except Exception as e:
             print(e)
-            return scores_ends
+            return scores
 
 
 if __name__ == '__main__':
@@ -169,7 +174,7 @@ if __name__ == '__main__':
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
 
-    pool = Pool(processes=4)
+    pool = Pool(processes=1)
     mapper = pool.imap_unordered(preprocessor, snippet_dirs)
     all_scores = []
 
