@@ -150,7 +150,7 @@ class Preprocessor:
                 print(f'{i} snippet len: {len(wav_snippet)} end-start: {end-start}')
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
 
-            scores = [(a[0], (a[1] + b[1]) for a, b in zip(scores, scores_ends)]
+            scores = [(a[0], a[1] + b[1]) for a, b in zip(scores, scores_ends)]
             return scores
         except Exception as e:
             print(e)
