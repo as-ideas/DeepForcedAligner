@@ -174,7 +174,7 @@ if __name__ == '__main__':
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
 
-    pool = Pool(processes=4)
+    pool = Pool(processes=1)
     mapper = pool.imap_unordered(preprocessor, snippet_dirs)
     all_scores = []
 
