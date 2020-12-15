@@ -150,7 +150,7 @@ class Preprocessor:
                 print(f'{i} snippet len: {len(wav_snippet)} end-start: {end-start}')
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
 
-            #scores = [a[0] + b[0] for a, b in zip(scores, scores_ends)]
+            scores = [a[0] + b[0] for a, b in zip(scores, scores_ends)]
             return scores
         except Exception as e:
             print(e)
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
 
-    pool = Pool(processes=1)
+    pool = Pool(processes=4)
     mapper = pool.imap_unordered(preprocessor, snippet_dirs)
     all_scores = []
 
