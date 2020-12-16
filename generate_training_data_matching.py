@@ -86,12 +86,15 @@ class Preprocessor:
 
     def __call__(self, file_name):
         scores = []
+        processed = 0
+        total = 0
         try:
-            print(f'Generating for dir {file_name}')
+            #print(f'Generating for dir {file_name}')
             wav_path = self.wav_main / file_name
             wav_long_path = self.wav_long_main / f'{file_name[:7]}.wav'
 
             wavs = sorted(list(wav_path.glob('**/*.wav')))
+            total = len(wavs)
             wav_long = self.audio.load_wav(wav_long_path)
             starts = []
             start = 0
@@ -110,7 +113,7 @@ class Preprocessor:
                         min_t = t
                     if min_diff < 15 and diff > min_diff + 10:
                         break
-                print(f'{file_name} (start) {wav.stem} {min_diff} {min_t}')
+                #print(f'{file_name} (start) {wav.stem} {min_diff} {min_t}')
                 starts.append((min_t, min_diff))
                 scores.append((wav.stem, min_diff))
                 start = min_t
@@ -132,7 +135,7 @@ class Preprocessor:
                     if diff < min_diff:
                         min_diff = diff
                         min_t = t
-                print(f'{file_name} (end) {wav.stem} {min_diff} {min_t}')
+                #print(f'{file_name} (end) {wav.stem} {min_diff} {min_t}')
                 min_t += (hp.vad_window_length * hp.vad_sample_rate) // 1000 * (hp.min_voice_length + 1)
                 ends.append((min_t, min_diff))
                 scores_ends.append((wav.stem, min_diff))
@@ -141,7 +144,7 @@ class Preprocessor:
             ends.reverse()
 
             for i, wav in enumerate(wavs):
-                print(f'{i} writing snippet: {wav}')
+                #print(f'{i} writing snippet: {wav}')
                 wav_snippet = self.audio.load_wav(wav)
                 name = wav.stem
                 start = starts[i][0]
@@ -149,14 +152,14 @@ class Preprocessor:
                 wav_cut = wav_long[start:end]
                 wav_cut = trim_end(wav_cut)
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
-                print(f'{i} wrote snippet {wav}, len: {len(wav_snippet)} end-start: {end-start}')
-
+                #print(f'{i} wrote snippet {wav}, len: {len(wav_snippet)} end-start: {end-start}')
+                processed += 1
             scores = [(a[0], a[1] + b[1]) for a, b in zip(scores, scores_ends)]
-            return scores
+            return scores, processed, total
         except Exception as e:
             print(f'Exception for {file_name}')
             traceback.print_exc()
-            return scores
+            return scores, processed, total
 
 
 if __name__ == '__main__':
@@ -180,9 +183,10 @@ if __name__ == '__main__':
     mapper = pool.imap_unordered(preprocessor, snippet_dirs)
     all_scores = []
 
-    for i, scores in enumerate(mapper):
+    for i, (scores, processed, total) in enumerate(mapper):
         all_scores.extend(scores)
         all_scores.sort(key=lambda x: -x[1])
+        print(f'{i} processed: {processed}, total: {total}')
         with open(out_path / 'all_scores.txt', 'w', encoding='utf-8') as f:
             lines = [f'{x[0]} {x[1]}\n' for x in all_scores]
             f.writelines(lines)
