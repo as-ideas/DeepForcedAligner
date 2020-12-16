@@ -154,7 +154,7 @@ class Preprocessor:
             scores = [(a[0], a[1] + b[1]) for a, b in zip(scores, scores_ends)]
             return scores
         except Exception as e:
-            print(e)
+            print(f'Exception for {file_name}')
             traceback.print_exc()
             return scores
 
