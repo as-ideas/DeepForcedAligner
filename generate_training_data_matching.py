@@ -3,7 +3,7 @@ import os
 import struct
 from multiprocessing.pool import Pool
 from pathlib import Path
-
+import traceback
 import numpy as np
 import soundfile as sf
 import webrtcvad
@@ -99,7 +99,7 @@ class Preprocessor:
             for i, wav in enumerate(wavs):
                 wav_snippet = self.audio.load_wav(wav)
                 window = min(len(wav_snippet), 50000)
-                stride = 100
+                stride = 10
                 wav_part = wav_snippet[0:window:stride]
                 min_diff = 9999999
                 min_t = start
@@ -123,7 +123,7 @@ class Preprocessor:
                 wav_snippet = self.audio.load_wav(wav)
                 snippet_end = get_end(wav_snippet)
                 window = min(len(wav_snippet)-snippet_end, 50000)
-                stride = 100
+                stride = 10
                 wav_part = wav_snippet[snippet_end-window:snippet_end:stride]
                 min_diff = 9999999
                 min_t = end_startpoints[i]
@@ -141,19 +141,21 @@ class Preprocessor:
             ends.reverse()
 
             for i, wav in enumerate(wavs):
+                print(f'{i} writing snippet: {wav}')
                 wav_snippet = self.audio.load_wav(wav)
                 name = wav.stem
                 start = starts[i][0]
                 end = ends[i][0]
                 wav_cut = wav_long[start:end]
                 wav_cut = trim_end(wav_cut)
-                print(f'{i} snippet len: {len(wav_snippet)} end-start: {end-start}')
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
+                print(f'{i} wrote snippet {wav}, len: {len(wav_snippet)} end-start: {end-start}')
 
             scores = [(a[0], a[1] + b[1]) for a, b in zip(scores, scores_ends)]
             return scores
         except Exception as e:
             print(e)
+            traceback.print_exc()
             return scores
 
 
@@ -170,12 +172,6 @@ if __name__ == '__main__':
     out_path.mkdir(parents=True, exist_ok=True)
 
     snippet_dirs = sorted(list(next(os.walk(wav_main))[1]))
-
-    print(f'snippet dirs: {snippet_dirs}')
-    snippets_used = out_path.glob('**/*.wav')
-    snippets_used = {o.stem for o in snippets_used}
-    snippet_dirs = [s for s in snippet_dirs if s not in snippets_used]
-    print(f'snippet dirs filt: {snippet_dirs}')
 
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
