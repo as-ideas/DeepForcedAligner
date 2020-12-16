@@ -171,6 +171,12 @@ if __name__ == '__main__':
 
     snippet_dirs = sorted(list(next(os.walk(wav_main))[1]))
 
+    print(f'snippet dirs: {snippet_dirs}')
+    snippets_used = out_path.glob('**/*.wav')
+    snippets_used = {o.stem for o in snippets_used}
+    snippet_dirs = [s for s in snippet_dirs if s not in snippets_used]
+    print(f'snippet dirs filt: {snippet_dirs}')
+
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
 
