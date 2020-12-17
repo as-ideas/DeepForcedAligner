@@ -101,7 +101,7 @@ class Preprocessor:
 
             for i, wav in enumerate(wavs):
                 wav_snippet = self.audio.load_wav(wav)
-                window = min(len(wav_snippet), 50000)
+                window = min(len(wav_snippet)//2, 50000)
                 stride = 10
                 wav_part = wav_snippet[0:window:stride]
                 min_diff = 9999999
