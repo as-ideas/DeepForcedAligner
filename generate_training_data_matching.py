@@ -150,7 +150,7 @@ class Preprocessor:
                 start = starts[i][0]
                 end = ends[i][0]
                 wav_cut = wav_long[start:end]
-                wav_cut = trim_end(wav_cut)
+                #wav_cut = trim_end(wav_cut)
                 sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
                 #print(f'{i} wrote snippet {wav}, len: {len(wav_snippet)} end-start: {end-start}')
                 processed += 1
