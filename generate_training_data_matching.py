@@ -151,9 +151,9 @@ class Preprocessor:
                 end = ends[i][0]
                 wav_cut = wav_long[start:end]
                 #wav_cut = trim_end(wav_cut)
-                sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
-                #print(f'{i} wrote snippet {wav}, len: {len(wav_snippet)} end-start: {end-start}')
-                processed += 1
+                if end - start < len(wav_snippet) * 1.5:
+                    sf.write(self.out_path / f'{name}.wav', wav_cut, samplerate=self.audio.sample_rate)
+                    processed += 1
             scores = [(a[0], a[1] + b[1]) for a, b in zip(scores, scores_ends)]
             return scores, processed, total
         except Exception as e:
