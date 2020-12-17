@@ -186,7 +186,8 @@ if __name__ == '__main__':
     for i, (scores, processed, total) in enumerate(mapper):
         all_scores.extend(scores)
         all_scores.sort(key=lambda x: -x[1])
-        print(f'{i} processed: {processed}, total: {total}')
+        mean_score = sum([s for _, s in scores]) / len(scores)
+        print(f'{i} processed: {processed}, total: {total}, mean score: {mean_score}')
         with open(out_path / 'all_scores.txt', 'w', encoding='utf-8') as f:
             lines = [f'{x[0]} {x[1]}\n' for x in all_scores]
             f.writelines(lines)
