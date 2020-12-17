@@ -125,7 +125,7 @@ class Preprocessor:
             for i, wav in enumerate(reversed(wavs)):
                 wav_snippet = self.audio.load_wav(wav)
                 snippet_end = get_end(wav_snippet)
-                window = min(len(wav_snippet)-snippet_end, 50000)
+                window = min(snippet_end, 50000)
                 stride = 10
                 wav_part = wav_snippet[snippet_end-window:snippet_end:stride]
                 min_diff = 9999999
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     preprocessor = Preprocessor(audio=audio, wav_main=wav_main,
                                 wav_long_main=wav_long_main, out_path=out_path)
 
-    pool = Pool(processes=1)
+    pool = Pool(processes=8)
     mapper = pool.imap_unordered(preprocessor, snippet_dirs)
     all_scores = []
 
