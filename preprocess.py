@@ -65,7 +65,7 @@ if __name__ == '__main__':
     print(f'Config: {args.config}\n'
           f'Target data directory: {paths.data_dir}')
     
-    text_dict = unpickle_binary('/Users/cschaefe/workspace/ForwardTacotron/text_dict.pkl')# read_metafile(paths.metadata_path)
+    text_dict = read_metafile(paths.metadata_path)
     symbols = set()
     for text in text_dict.values():
         symbols.update(set(text))
@@ -77,6 +77,8 @@ if __name__ == '__main__':
         audio_files = get_files(paths.dataset_dir, extension='.wav')
 
     audio_files = [x for x in audio_files if x.stem in text_dict]
+
+    print(f'num audio files {len(audio_files)}')
     tokenizer = Tokenizer(symbols)
     preprocessor = Preprocessor(audio=audio, tokenizer=tokenizer, paths=paths,
                                 text_dict=text_dict, mel_dim_last=mel_dim_last)
@@ -88,8 +90,8 @@ if __name__ == '__main__':
 
     random = Random(42)
     random.shuffle(dataset)
-    train_dataset = [d for d in dataset if 'biːdən' not in text_dict[d['item_id']]]
-    val_dataset = [d for d in dataset if 'biːdən' in text_dict[d['item_id']]]
+    train_dataset = dataset[:4000]
+    val_dataset = dataset[4000:]
     pickle_binary(train_dataset, paths.data_dir / 'train_dataset.pkl')
     pickle_binary(val_dataset, paths.data_dir / 'val_dataset.pkl')
     pickle_binary(symbols, paths.data_dir / 'symbols.pkl')

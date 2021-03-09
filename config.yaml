@@ -1,10 +1,10 @@
 
 paths:
   dataset_dir: "/Users/cschaefe/Axel Springer SE/TTS Audio Service (OG) - Post Production Files Snippets"
-  metadata_path: "/Users/cschaefe/Axel Springer SE/TTS Audio Service (OG) - Post Production Files Snippets/metadata.csv"
+  metadata_path: "/Users/cschaefe/datasets/nlp/metafile_en_replaced_phonemized.csv"
   data_dir: dfa_data
   checkpoint_dir: dfa_checkpoints
-  precomputed_mels: "/Users/cschaefe/workspace/ForwardTacotron/data/mel"
+  precomputed_mels:
 
 audio:
   sample_rate: 22050
