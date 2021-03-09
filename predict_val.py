@@ -53,7 +53,6 @@ if __name__ == '__main__':
     print(f'Performing STT model inference...')
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
         tokens, mel, tokens_len, mel_len = to_device(batch, device)
-        mel = mel[:, mel_len//2, :]
         pred_batch = model(mel)
         for b in range(tokens.size(0)):
             this_mel_len = mel_len[b]
@@ -64,7 +63,7 @@ if __name__ == '__main__':
             np.save(pred_target_dir / f'{item_id}.npy', pred, allow_pickle=False)
 
     print(f'Transkribing...')
-    dataset = unpickle_binary(paths.data_dir / 'train_dataset.pkl')
+    dataset = unpickle_binary(paths.data_dir / 'val_dataset.pkl')
     result = []
     for item in dataset:
         file_name = item['item_id'] + '.npy'
