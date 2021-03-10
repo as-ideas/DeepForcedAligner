@@ -29,8 +29,8 @@ if __name__ == '__main__':
         model = Aligner(n_mels=config['audio']['n_mels'],
                         num_symbols=len(symbols) + 1,
                         **config['model'])
-        optim = optim.Adam(model.parameters(), lr=1e-4)
-        checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
+        checkpoint = {'model': model.state_dict(), 'optim': optimizer.state_dict(),
                       'config': config, 'symbols': symbols}
         trainer = Trainer(paths=paths)
         target = 'output'
