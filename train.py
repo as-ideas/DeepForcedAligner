@@ -46,8 +46,9 @@ if __name__ == '__main__':
             checkpoint = {'model': model.state_dict(), 'optim': optim.state_dict(),
                           'config': config, 'symbols': symbols}
 
-    trainer = Trainer(paths=paths)
     for split_num in range(5):
+        print(f'Training {split_num}')
+        trainer = Trainer(paths=paths)
         target = 'output'
         trainer.train(checkpoint, train_params=config['training'], split_num=split_num)
 
