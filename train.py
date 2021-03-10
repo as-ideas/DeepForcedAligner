@@ -82,6 +82,6 @@ if __name__ == '__main__':
             pred_text_collapsed = ''.join([k for k, g in groupby(pred_text.replace('_', '')) if k!=0])
             result.append((item['item_id'], pred_text_collapsed))
 
-        with open(f'output/transkribed_{split_num}.csv', 'w+', encoding='utf-8') as f:
+        with open(f'output/transkribed_median_{split_num}.csv', 'w+', encoding='utf-8') as f:
             for a, b in result:
                 f.write(f'{a}|{b}\n')
