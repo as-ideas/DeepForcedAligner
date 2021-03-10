@@ -97,8 +97,8 @@ if __name__ == '__main__':
     pickle_binary(symbols, paths.data_dir / 'symbols.pkl')
 
     for i, (train, val) in enumerate(kfold):
-        train_dataset = [dataset[i] for i in train]
-        val_dataset = [dataset[i] for i in val]
+        train_dataset = [dataset[j] for j in train]
+        val_dataset = [dataset[j] for j in val]
         pickle_binary(train_dataset, paths.data_dir / f'train_dataset_{i}.pkl')
         pickle_binary(val_dataset, paths.data_dir / f'val_dataset_{i}.pkl')
         print(f'len train {len(train_dataset)} len val {len(val_dataset)}')
