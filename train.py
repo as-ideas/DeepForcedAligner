@@ -48,12 +48,11 @@ if __name__ == '__main__':
 
     trainer = Trainer(paths=paths)
     for split_num in range(5):
+        target = 'output'
         trainer.train(checkpoint, train_params=config['training'], split_num=split_num)
 
         model_path = paths.checkpoint_dir / f'best_model_{split_num}.pt'
-
-        print(f'Target dir: {args.target}')
-        dur_target_dir, pred_target_dir = Path('output') / 'durations', Path(args.target) / 'predictions'
+        dur_target_dir, pred_target_dir = Path(target) / 'durations', Path(target) / 'predictions'
         dur_target_dir.mkdir(parents=True, exist_ok=True)
         pred_target_dir.mkdir(parents=True, exist_ok=True)
 
