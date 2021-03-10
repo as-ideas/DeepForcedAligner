@@ -19,8 +19,8 @@ preprocessing:
   mel_dim_last: false # whether precomputed mels have mel channels as last dimension
 
 model:
-  lstm_dim: 256
-  conv_dim: 256
+  lstm_dim: 32
+  conv_dim: 32
 
 durations:
   method: 'dijkstra' # options: [dijkstra, beam]
@@ -28,6 +28,6 @@ durations:
 training:
   learning_rate: 0.0001
   batch_size: 8
-  epochs: 1000
+  epochs: 2
   plot_steps: 1000
   checkpoint_steps: 10_000

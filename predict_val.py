@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = read_config(args.config)
     paths = Paths.from_config(config['paths'])
-    model_path = args.model if args.model else paths.checkpoint_dir / 'latest_model.pt'
+    model_path = args.model if args.model else paths.checkpoint_dir / 'model_swap_step_60k.pt'
 
     print(f'Target dir: {args.target}')
     dur_target_dir, pred_target_dir = Path(args.target) / 'durations', Path(args.target) / 'predictions'
@@ -63,7 +63,7 @@ if __name__ == '__main__':
             np.save(pred_target_dir / f'{item_id}.npy', pred, allow_pickle=False)
 
     print(f'Transkribing...')
-    dataset = unpickle_binary(paths.data_dir / 'val_dataset.pkl')
+    dataset = unpickle_binary(paths.data_dir / 'train_dataset.pkl')
     result = []
     for item in dataset:
         file_name = item['item_id'] + '.npy'
@@ -76,8 +76,10 @@ if __name__ == '__main__':
         text = tokenizer.decode(tokens.tolist())
         pred_text = tokenizer.decode(pred_max.tolist())
         pred_text_collapsed = ''.join([k for k, g in groupby(pred_text.replace('_', '')) if k!=0])
-        result.append((item['item_id'], text, pred_text_collapsed, pred_text))
+        print(text)
+        print(pred_text_collapsed)
+        result.append((item['item_id'], pred_text_collapsed))
 
-    with open('output/transkribed.csv', 'w+', encoding='utf-8') as f:
-        for a, b, c, d in result:
-            f.write(f'{a}|{b}|{c}|{d}\n')
+    with open('output/transkribed_train.csv', 'w+', encoding='utf-8') as f:
+        for a, b in result:
+            f.write(f'{a}|{b}\n')

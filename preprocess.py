@@ -4,6 +4,7 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 from random import Random
 from typing import Dict, Union
+from sklearn.model_selection import KFold
 
 import numpy as np
 import tqdm
@@ -90,10 +91,15 @@ if __name__ == '__main__':
 
     random = Random(42)
     random.shuffle(dataset)
-    train_dataset = dataset[:4000]
-    val_dataset = dataset[4000:]
-    pickle_binary(train_dataset, paths.data_dir / 'train_dataset.pkl')
-    pickle_binary(val_dataset, paths.data_dir / 'val_dataset.pkl')
+
+    kfold = KFold(n_splits=5).split(dataset)
+
     pickle_binary(symbols, paths.data_dir / 'symbols.pkl')
-    print(f'len train {len(train_dataset)} len val {len(val_dataset)}')
-    print('Preprocessing done.')
+
+    for i, (train, val) in enumerate(kfold):
+        train_dataset = [dataset[i] for i in train]
+        val_dataset = [dataset[i] for i in val]
+        pickle_binary(train_dataset, paths.data_dir / f'train_dataset_{i}.pkl')
+        pickle_binary(val_dataset, paths.data_dir / f'val_dataset_{i}.pkl')
+        print(f'len train {len(train_dataset)} len val {len(val_dataset)}')
+        print('Preprocessing done.')

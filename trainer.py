@@ -17,15 +17,14 @@ class Trainer:
 
     def __init__(self, paths: Paths) -> None:
         self.paths = paths
-        self.writer = SummaryWriter(log_dir=paths.checkpoint_dir / 'tensorboard')
         self.ctc_loss = CTCLoss()
 
+    def train(self, checkpoint: dict, train_params: dict, split_num) -> None:
         # Used for generating plots
-        longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / 'val_dataset.pkl')
-        self.longest_mel = np.load(str(paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
-        self.longest_tokens = np.load(str(paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
-
-    def train(self, checkpoint: dict, train_params: dict) -> None:
+        self.writer = SummaryWriter(log_dir=self.paths.checkpoint_dir / f'tensorboard_{split_num}')
+        longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / f'val_dataset_{split_num}.pkl')
+        self.longest_mel = np.load(str(self.paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
+        self.longest_tokens = np.load(str(self.paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
         lr = train_params['learning_rate']
         epochs = train_params['epochs']
         batch_size = train_params['batch_size']
@@ -44,14 +43,15 @@ class Trainer:
         for g in optim.param_groups:
             g['lr'] = lr
 
-        dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'train_dataset.pkl', mel_dir=self.paths.mel_dir,
+        dataloader = new_dataloader(dataset_path=self.paths.data_dir / f'train_dataset_{split_num}.pkl', mel_dir=self.paths.mel_dir,
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
-        val_dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'val_dataset.pkl', mel_dir=self.paths.mel_dir,
+        val_dataloader = new_dataloader(dataset_path=self.paths.data_dir / f'val_dataset_{split_num}.pkl', mel_dir=self.paths.mel_dir,
                                     token_dir=self.paths.token_dir, batch_size=8)
 
         loss_sum = 0.
         start_epoch = model.get_step() // len(dataloader)
+        min_val_loss = 9999.
 
         for epoch in range(start_epoch + 1, epochs + 1):
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
@@ -85,12 +85,16 @@ class Trainer:
                     self.generate_plots(model, tokenizer)
 
             val_loss = self.evaluate(model, val_dataloader)
+            if val_loss < min_val_loss:
+                print(f'Saving best model at step {model.get_step()} with val loss {val_loss}')
+                min_val_loss = val_loss
+                latest_checkpoint = self.paths.checkpoint_dir / f'best_model_{split_num}.pt'
+                torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
+                            'config': config, 'symbols': symbols},
+                           latest_checkpoint)
+
             self.writer.add_scalar('CTC_Loss/val', val_loss, global_step=model.get_step())
             loss_sum = 0
-            latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
-            torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
-                        'config': config, 'symbols': symbols},
-                       latest_checkpoint)
 
     def evaluate(self, model: Aligner, dataloader):
         val_loss = 0.
