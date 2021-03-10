@@ -21,7 +21,7 @@ class Trainer:
 
     def train(self, checkpoint: dict, train_params: dict, split_num) -> None:
         # Used for generating plots
-        self.writer = SummaryWriter(log_dir=self.paths.checkpoint_dir / f'tensorboard_{split_num}')
+        self.writer = SummaryWriter(log_dir=self.paths.checkpoint_dir / f'tensorboard_med_{split_num}')
         longest_id = get_longest_mel_id(dataset_path=self.paths.data_dir / f'val_dataset_{split_num}.pkl')
         self.longest_mel = np.load(str(self.paths.mel_dir / f'{longest_id}.npy'), allow_pickle=False)
         self.longest_tokens = np.load(str(self.paths.token_dir / f'{longest_id}.npy'), allow_pickle=False)
@@ -97,7 +97,7 @@ class Trainer:
             loss_sum = 0
 
     def evaluate(self, model: Aligner, dataloader):
-        val_loss = 0.
+        val_loss = []
         model.eval()
         device = next(model.parameters()).device
         for i, batch in enumerate(dataloader, 1):
@@ -106,9 +106,10 @@ class Trainer:
                 pred = model(mel)
             pred = pred.transpose(0, 1).log_softmax(2)
             loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
-            val_loss += loss.item()
+            val_loss.append(loss.item())
         model.train()
-        return val_loss / len(dataloader)
+        val_loss.sort()
+        return val_loss[len(val_loss)//2]
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
         model.eval()
