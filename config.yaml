@@ -1,6 +1,6 @@
 
 paths:
-  dataset_dir: /Users/cschaefe/datasets/MFA_LJ
+  dataset_dir: /Users/cschaefe/datasets/ASVoice4
   data_dir: dfa_data
   checkpoint_dir: dfa_checkpoints
   precomputed_mels: null # Optional: pre-computed mels

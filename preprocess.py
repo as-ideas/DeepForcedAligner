@@ -59,6 +59,10 @@ if __name__ == '__main__':
     symbols = sorted(list(symbols))
     
     wav_files = get_files(paths.dataset_dir, extension='.wav')
+    wav_ids = {w.stem for w in wav_files}
+    text_dict = {id: text for id, text in text_dict.items() if id in wav_ids}
+    wav_files = [f for f in wav_files if f.stem in text_dict]
+
     tokenizer = Tokenizer(symbols)
     preprocessor = Preprocessor(audio=audio, tokenizer=tokenizer,
                                 paths=paths, text_dict=text_dict)

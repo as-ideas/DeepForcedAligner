@@ -30,22 +30,12 @@ class Aligner(torch.nn.Module):
                  conv_dim: int) -> None:
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
-        self.convs = nn.ModuleList([
-            BatchNormConv(n_mels, conv_dim, 3),
-            nn.Dropout(p=0.5),
-            BatchNormConv(conv_dim, conv_dim, 3),
-            nn.Dropout(p=0.5),
-            BatchNormConv(conv_dim, conv_dim, 3),
-            nn.Dropout(p=0.5),
-        ])
-        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
+        self.rnn = torch.nn.LSTM(n_mels, lstm_dim, batch_first=True, bidirectional=True)
         self.lin = torch.nn.Linear(2 * lstm_dim, num_symbols)
 
     def forward(self, x):
         if self.train:
             self.step += 1
-        for conv in self.convs:
-            x = conv(x)
         x, _ = self.rnn(x)
         x = self.lin(x)
         return x
@@ -74,15 +64,7 @@ class TTSModel(torch.nn.Module):
         super().__init__()
         self.register_buffer('step', torch.tensor(1, dtype=torch.int))
         self.embedding = nn.Embedding(num_symbols, embedding_dim=128)
-        self.convs = nn.ModuleList([
-            BatchNormConv(128, conv_dim, 3),
-            nn.Dropout(p=0.5),
-            BatchNormConv(conv_dim, conv_dim, 3),
-            nn.Dropout(p=0.5),
-            BatchNormConv(conv_dim, conv_dim, 3),
-            nn.Dropout(p=0.5),
-        ])
-        self.rnn = torch.nn.LSTM(conv_dim, lstm_dim, batch_first=True, bidirectional=True)
+        self.rnn = torch.nn.LSTM(128, lstm_dim, batch_first=True, bidirectional=True)
         self.lin = torch.nn.Linear(2*lstm_dim, n_mels)
         self.n_mels = n_mels
         self.num_symbols = num_symbols
@@ -101,11 +83,9 @@ class TTSModel(torch.nn.Module):
             v = v * emb_range[None, :, :]
             v = torch.sum(v, dim=1)
             x[:, t, :] = v
-        for conv in self.convs:
-            x = conv(x)
-            x, _ = self.rnn(x)
-            x = self.lin(x)
-            return x
+        x, _ = self.rnn(x)
+        x = self.lin(x)
+        return x
 
     def get_step(self):
         return self.step.data.item()
