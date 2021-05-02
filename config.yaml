@@ -1,9 +1,10 @@
 
 paths:
-  dataset_dir: /Users/cschaefe/datasets/ASVoice4
-  data_dir: dfa_data
-  checkpoint_dir: dfa_checkpoints
-  precomputed_mels: null # Optional: pre-computed mels
+  dataset_dir: /home/sysgen/chris/data/ASVoice4_english                   # path to dataset containing wavs
+  metadata_path: /home/sysgen/chris/data/ASVoice4_english/metadata_flagged_phonemized.csv     # path to LJSpeech-style metafile with format: id|text
+  precomputed_mels: /home/sysgen/chris/workspace/ForwardTacotron/data/mel                           # replaces dataset_dir if set and points to already preprocessed mels
+  data_dir: dfa_data                           # directory to store preprocessed data
+  checkpoint_dir: dfa_checkpoints              # directory for model checkpoints and tensorboard
 
 audio:
   sample_rate: 22050
@@ -13,6 +14,10 @@ audio:
   hop_length: 256
   fmin: 0
   fmax: 8000
+
+
+preprocessing:
+  mel_dim_last: false # whether precomputed mels have mel channels as last dimension
 
 model:
   lstm_dim: 256
