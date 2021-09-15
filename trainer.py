@@ -47,14 +47,13 @@ class Trainer:
         dataloader = new_dataloader(dataset_path=self.paths.data_dir / 'dataset.pkl', mel_dir=self.paths.mel_dir,
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
-        loss_sum = 0.
         start_epoch = model.get_step() // len(dataloader)
 
         for epoch in range(start_epoch + 1, epochs + 1):
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
             for i, batch in pbar:
                 pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
-                                          f'| Loss: {loss_sum / i:#.4}', refresh=True)
+                                          f'| Loss: {loss:#.4}', refresh=True)
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
@@ -62,12 +61,11 @@ class Trainer:
 
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
-                optim.zero_grad()
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optim.step()
-
-                loss_sum += loss.item()
+                if not torch.isnan(loss) and not torch.isinf(loss):
+                    optim.zero_grad()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    optim.step()
 
                 self.writer.add_scalar('CTC_Loss', loss.item(), global_step=model.get_step())
                 self.writer.add_scalar('Params/batch_size', batch_size, global_step=model.get_step())
@@ -81,7 +79,6 @@ class Trainer:
                 if model.get_step() % plot_steps == 0:
                     self.generate_plots(model, tokenizer)
 
-            loss_sum = 0
             latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
             torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
                         'config': config, 'symbols': symbols},
