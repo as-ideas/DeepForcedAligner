@@ -52,14 +52,14 @@ class Trainer:
         for epoch in range(start_epoch + 1, epochs + 1):
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
             for i, batch in pbar:
-                pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
-                                          f'| Loss: {loss:#.4}', refresh=True)
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
                 pred = pred.transpose(0, 1).log_softmax(2)
 
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
+                                          f'| Loss: {loss:#.4}', refresh=True)
 
                 if not torch.isnan(loss) and not torch.isinf(loss):
                     optim.zero_grad()
