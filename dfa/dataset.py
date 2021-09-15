@@ -78,8 +78,13 @@ def collate_dataset(batch: List[dict]) -> torch.tensor:
 def new_dataloader(dataset_path: Path, mel_dir: Path,
                    token_dir: Path, batch_size=32) -> DataLoader:
     dataset = unpickle_binary(dataset_path)
+    print(f'len data {len(dataset)}')
+    dataset = [d for d in dataset if d['mel_len'] < 1250]
     item_ids = [d['item_id'] for d in dataset]
     mel_lens = [d['mel_len'] for d in dataset]
+    print(f'len filtered data {len(dataset)}')
+
+
     aligner_dataset = AlignerDataset(item_ids=item_ids, mel_dir=mel_dir, token_dir=token_dir)
     return DataLoader(aligner_dataset,
                       collate_fn=collate_dataset,
