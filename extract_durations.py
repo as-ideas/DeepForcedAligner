@@ -83,7 +83,6 @@ if __name__ == '__main__':
 
     print(f'Extracting durations...')
     dataset = unpickle_binary(paths.data_dir / 'dataset.pkl')
-    dataset = [d for d in dataset if d['mel_len'] < 1250]
     item_files = []
     for item in dataset:
         file_name = item['item_id'] + '.npy'
