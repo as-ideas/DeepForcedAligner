@@ -77,7 +77,9 @@ class Trainer:
                                self.paths.checkpoint_dir / f'model_step_{model.get_step() // 1000}k.pt')
 
                 if model.get_step() % plot_steps == 0:
-                    self.generate_plots(model, tokenizer)
+                    with torch.no_grad():
+                        self.generate_plots(model, tokenizer)
+                        self.generate_plots(model, tokenizer)
 
             latest_checkpoint = self.paths.checkpoint_dir / 'latest_model.pt'
             torch.save({'model': model.state_dict(), 'optim': optim.state_dict(),
@@ -85,7 +87,7 @@ class Trainer:
                        latest_checkpoint)
 
     def generate_plots(self, model: Aligner, tokenizer: Tokenizer) -> None:
-        model.eval()
+        #model.eval()
         device = next(model.parameters()).device
         longest_mel = torch.tensor(self.longest_mel).unsqueeze(0).float().to(device)
         pred = model(longest_mel)[0].detach().cpu().softmax(dim=-1)
