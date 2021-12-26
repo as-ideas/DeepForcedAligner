@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', default='config.yaml', type=str, help='Points to the config file.')
     parser.add_argument('--model', '-m', default=None, type=str, help='Points to the a model file to restore.')
     parser.add_argument('--target', '-t', default='output', type=str, help='Target path')
-    parser.add_argument('--batch_size', '-b', default=8, type=int, help='Batch size for inference.')
+    parser.add_argument('--batch_size', '-b', default=1, type=int, help='Batch size for inference.')
     parser.add_argument('--num_workers', '-w', metavar='N', type=int, default=cpu_count() - 1,
                         help='The number of worker threads to use for preprocessing')
 
@@ -64,15 +64,18 @@ if __name__ == '__main__':
     print(f'Loaded model with step {model.get_step()} on device: {device}')
 
     symbols = unpickle_binary(paths.data_dir / 'symbols.pkl')
-    assert symbols == checkpoint['symbols'], 'Symbols from dataset do not match symbols from model checkpoint!'
+    #assert symbols == checkpoint['symbols'], 'Symbols from dataset do not match symbols from model checkpoint!'
     tokenizer = Tokenizer(symbols)
     dataloader = new_dataloader(dataset_path=paths.data_dir / 'dataset.pkl', mel_dir=paths.mel_dir,
                                 token_dir=paths.token_dir, batch_size=args.batch_size)
 
     print(f'Performing STT model inference...')
+    model.train()
     for i, batch in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
         tokens, mel, tokens_len, mel_len = to_device(batch, device)
-        pred_batch = model(mel)
+        with torch.no_grad():
+            pred_batch = model(mel.repeat(64, 1, 1))
+        pred_batch = pred_batch.mean(dim=0).unsqueeze(0)
         for b in range(tokens.size(0)):
             this_mel_len = mel_len[b]
             pred = pred_batch[b, :this_mel_len, :]
