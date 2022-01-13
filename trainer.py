@@ -60,9 +60,9 @@ class Trainer:
                 pred = model(mel)
 
                 pred_norm = pred.detach().softmax(2)
-                tokens_new = torch.zeros(tokens.size(), device=tokens.device)
+                tokens_new = tokens.detach().clone()
                 for b in range(pred_norm.size(0)):
-                    toks = tokens[b]
+                    toks = tokens[b].cpu()
                     pred_max = pred[b].max(1)[1].detach().cpu()
                     pred_inds = toks[pred_max].cpu()
                     for t in range(toks.size(0)):
@@ -71,9 +71,12 @@ class Trainer:
                             tokens_new[b, t] = pred_inds[t]
                             num_replaced += 1
 
+                tokens_new = tokens_new.to(tokens.device)
+
+
                 pred = pred.transpose(0, 1).log_softmax(2)
 
-                loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
+                loss = self.ctc_loss(pred, tokens_new, mel_len, tokens_len)
                 pbar.set_description(desc=f'Epoch: {epoch} | Step {model.get_step()} '
                                           f'| Loss: {loss:#.4}', refresh=True)
 
