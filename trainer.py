@@ -65,7 +65,7 @@ class Trainer:
                     pred_inds = pred[b].max(1)[1].detach().cpu()
                     for t in range(tokens_len[b]):
                         pred_ind = pred_inds[t]
-                        if pred_norm[b, t, pred_ind] > 0.0:
+                        if pred_norm[b, t, pred_ind] > 0.98:
                             tokens_new[b, t] = pred_inds[t]
                             num_replaced += 1
 
