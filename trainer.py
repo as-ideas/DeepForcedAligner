@@ -63,7 +63,7 @@ class Trainer:
                 tokens_new = tokens.detach().clone()
                 for b in range(pred_norm.size(0)):
                     pred_inds = pred[b].max(1)[1].detach().cpu()
-                    for t in range(tokens_len[b]):
+                    for t in range(pred_inds.size(0)):
                         pred_ind = pred_inds[t]
                         if pred_norm[b, t, pred_ind] > 0.98:
                             tokens_new[b, t] = pred_inds[t]
