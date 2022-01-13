@@ -48,13 +48,29 @@ class Trainer:
                                     token_dir=self.paths.token_dir, batch_size=batch_size)
 
         start_epoch = model.get_step() // len(dataloader)
+        num_replaced = 0
 
         for epoch in range(start_epoch + 1, epochs + 1):
+            print(f'Num replaced: {num_replaced}')
+            num_replaced = 0
             pbar = tqdm.tqdm(enumerate(dataloader, 1), total=len(dataloader))
             for i, batch in pbar:
                 tokens, mel, tokens_len, mel_len = to_device(batch, device)
 
                 pred = model(mel)
+
+                pred_norm = pred.detach().softmax(2)
+                tokens_new = torch.zeros(tokens.size(), device=tokens.device)
+                for b in range(pred_norm.size(0)):
+                    toks = tokens[b]
+                    pred_max = pred[b].max(1)[1].detach()
+                    pred_inds = toks[pred_max]
+                    pred_probs = pred_norm[b, pred_inds]
+                    for t in range(toks.size(0)):
+                        if pred_probs[t] > 0.5:
+                            tokens_new[b, t] = pred_inds[t]
+                            num_replaced += 1
+
                 pred = pred.transpose(0, 1).log_softmax(2)
 
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
