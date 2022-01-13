@@ -63,8 +63,8 @@ class Trainer:
                 tokens_new = torch.zeros(tokens.size(), device=tokens.device)
                 for b in range(pred_norm.size(0)):
                     toks = tokens[b]
-                    pred_max = pred[b].max(1)[1].detach()
-                    pred_inds = toks[pred_max]
+                    pred_max = pred[b].max(1)[1].detach().cpu()
+                    pred_inds = toks[pred_max].cpu()
                     for t in range(toks.size(0)):
                         pred_ind = pred_inds[t]
                         if pred_norm[b, t, pred_ind] > 0.5:
