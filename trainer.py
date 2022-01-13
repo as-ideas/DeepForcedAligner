@@ -65,9 +65,9 @@ class Trainer:
                     toks = tokens[b]
                     pred_max = pred[b].max(1)[1].detach()
                     pred_inds = toks[pred_max]
-                    pred_probs = pred_norm[b, pred_inds]
                     for t in range(toks.size(0)):
-                        if pred_probs[t] > 0.5:
+                        pred_ind = pred_inds[t]
+                        if pred_norm[b, t, pred_ind] > 0.5:
                             tokens_new[b, t] = pred_inds[t]
                             num_replaced += 1
 
