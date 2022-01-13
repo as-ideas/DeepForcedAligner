@@ -66,7 +66,7 @@ class Trainer:
                     for t in range(pred_inds.size(0)):
                         pred_ind = pred_inds[t]
                         if pred_norm[b, t, pred_ind] > 0.98:
-                            tokens_new[b, t] = pred_inds[t]
+                            tokens_new[b, t] = pred_ind
                             num_replaced += 1
 
                 tokens_new = tokens_new.to(tokens.device)
