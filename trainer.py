@@ -65,10 +65,11 @@ class Trainer:
 
                 loss = self.ctc_loss(pred, tokens, mel_len, tokens_len)
 
-                optim.zero_grad()
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optim.step()
+                if not torch.isnan(loss) and not torch.isinf(loss):
+                    optim.zero_grad()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    optim.step()
 
                 loss_sum += loss.item()
 
