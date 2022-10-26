@@ -1,1 +1,9 @@
-/.venv/
+*.pyc
+__pycache__
+.coverage
+logs
+*.ckpt
+preprocessed
+.vscode
+*egg-info
+
