@@ -1,8 +1,14 @@
 import pickle
 from pathlib import Path
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, Tuple
 
+import numpy as np
 import yaml
+
+from .duration_extraction import (
+    extract_durations_with_dijkstra,
+    extract_durations_beam,
+)
 
 
 def read_metafile(path: str) -> Dict[str, str]:
@@ -38,3 +44,18 @@ def pickle_binary(data: object, file: Union[str, Path]) -> None:
 def unpickle_binary(file: Union[str, Path]) -> Any:
     with open(str(file), "rb") as f:
         return pickle.load(f)
+
+
+def extract_durations_for_item(item, tokens, pred, method: str = "beam"):
+    tokens_len, mel_len = item["tokens_len"], item["mel_len"]
+    tokens = tokens[:tokens_len]
+    pred = pred[:mel_len, :]
+    if method == "beam":
+        durations, _ = extract_durations_beam(tokens, pred, 10)
+        durations = durations[0]
+    elif method == "dijkstra":
+        durations = extract_durations_with_dijkstra(tokens, pred)
+    else:
+        raise NotImplementedError(f"Sorry, method '{method}' is not implemented")
+
+    return item, durations

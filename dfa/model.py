@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from pathlib import Path
 import pytorch_lightning as pl
+import numpy as np
 
 from .duration_extraction import extract_durations_with_dijkstra
 from smts.config.base_config import BaseConfig
@@ -90,6 +91,27 @@ class Aligner(pl.LightningModule):
             "lr_scheduler": scheduler,
             "monitor": "validation/loss",
         }
+
+    def predict_step(self, batch, batch_idx):
+        tokens = batch["tokens"]
+        mel = batch["mel"]
+        mel_len = batch["mel_len"]
+        pred_batch = self(mel)
+
+        for b in range(tokens.size(0)):
+            this_mel_len = mel_len[b]
+            pred = pred_batch[b, :this_mel_len, :]
+            pred = torch.softmax(pred, dim=-1)
+            pred = pred.detach().cpu().numpy()
+            basename = batch["basename"][b]
+            speaker = batch["speaker"][b]
+            language = batch["language"][b]
+            np.save(
+                self.save_dir
+                / self.sep.join([basename, speaker, language, "duration.npy"]),
+                pred,
+                allow_pickle=False,
+            )
 
     def training_step(self, batch, batch_idx):
         loss = self._calculate_loss_from_batch(batch)

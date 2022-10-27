@@ -63,6 +63,15 @@ class AlignerDataModule(pl.LightningDataModule):
             drop_last=True,
         )
 
+    def predict_dataloader(self):
+        return DataLoader(
+            AlignerDataset(self.dataset, self.config),
+            batch_size=self.batch_size,
+            pin_memory=True,
+            collate_fn=collate_dataset,
+            drop_last=True,
+        )
+
     def prepare_data(self):
         train_split = int(len(self.dataset) * self.train_split)
         self.train_dataset, self.val_dataset = random_split(
