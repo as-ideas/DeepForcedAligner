@@ -47,7 +47,6 @@ class Aligner(pl.LightningModule):
         lstm_dim = self.config["model"]["aligner"]["lstm_dim"]
         n_mels = self.config["preprocessing"]["audio"]["n_mels"]
         num_symbols = len(self.text_processor.symbols)
-        self.save_dir = self.config["preprocessing"]["save_dir"]
         self.log_dir = os.path.join(
             self.config["training"]["logger"]["save_dir"],
             self.config["training"]["logger"]["name"],
@@ -93,11 +92,12 @@ class Aligner(pl.LightningModule):
         }
 
     def predict_step(self, batch, batch_idx):
+        save_dir = Path(self.config["preprocessing"]["save_dir"])
+        sep = self.config["preprocessing"]["value_separator"]
         tokens = batch["tokens"]
         mel = batch["mel"]
         mel_len = batch["mel_len"]
         pred_batch = self(mel)
-
         for b in range(tokens.size(0)):
             this_mel_len = mel_len[b]
             pred = pred_batch[b, :this_mel_len, :]
@@ -107,8 +107,7 @@ class Aligner(pl.LightningModule):
             speaker = batch["speaker"][b]
             language = batch["language"][b]
             np.save(
-                self.save_dir
-                / self.sep.join([basename, speaker, language, "duration.npy"]),
+                save_dir / sep.join([basename, speaker, language, "duration.npy"]),
                 pred,
                 allow_pickle=False,
             )
