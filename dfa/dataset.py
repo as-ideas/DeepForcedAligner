@@ -13,26 +13,26 @@ from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
 from torch.utils.data import random_split
 
-from smts.config.base_config import BaseConfig
+from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
 from smts.text import TextProcessor
 
 
 class AlignerDataModule(pl.LightningDataModule):
-    def __init__(self, config: BaseConfig):
+    def __init__(self, config: DFAlignerConfig):
         super().__init__()
         self.config = config
         self.train_sampler = None
         self.val_sampler = None
-        self.batch_size = config["training"]["aligner"]["batch_size"]
-        self.train_split = self.config["training"]["aligner"]["train_split"]
+        self.batch_size = config.training.batch_size
+        self.train_split = config.training.train_split
         self.train_path = os.path.join(
-            self.config["training"]["logger"]["save_dir"],
-            self.config["training"]["logger"]["name"],
+            config.training.logger.save_dir,
+            config.training.logger.name,
             "alignment_train_data.pth",
         )
         self.val_path = os.path.join(
-            self.config["training"]["logger"]["save_dir"],
-            self.config["training"]["logger"]["name"],
+            config.training.logger.save_dir,
+            config.training.logger.name,
             "alignment_val_data.pth",
         )
 
@@ -79,20 +79,20 @@ class AlignerDataModule(pl.LightningDataModule):
         )
         self.train_dataset = AlignerDataset(self.train_dataset, self.config)
         self.val_dataset = AlignerDataset(self.val_dataset, self.config)
-        if self.config["training"]["aligner"]["binned_sampler"]:
+        if self.config.training.binned_sampler:
             self.train_mel_lens = [d["mel_len"] for d in self.train_dataset]
             self.val_mel_lens = [d["mel_len"] for d in self.val_dataset]
             self.train_sampler = BinnedLengthSampler(
                 mel_lens=self.train_mel_lens,
                 batch_size=self.batch_size,
                 bin_size=self.batch_size * 3,
-                seed=self.config["training"]["aligner"]["seed"],
+                seed=self.config.training.seed,
             )
             self.val_sampler = BinnedLengthSampler(
                 mel_lens=self.val_mel_lens,
                 batch_size=self.batch_size,
                 bin_size=self.batch_size * 3,
-                seed=self.config["training"]["aligner"]["seed"],
+                seed=self.config.training.seed,
             )
 
         # save it to disk
@@ -101,23 +101,21 @@ class AlignerDataModule(pl.LightningDataModule):
 
     def load_dataset(self):
         # Can use same filelist as for feature prediction
-        self.dataset = self.config["training"]["feature_prediction"]["filelist_loader"](
-            self.config["training"]["feature_prediction"]["filelist"]
+        self.dataset = self.config.training.filelist_loader(
+            self.config.training.filelist
         )
 
 
 class AlignerDataset(Dataset):
-    def __init__(self, data, config: BaseConfig):
+    def __init__(self, data, config: DFAlignerConfig):
         super().__init__()
         self.config = config
         self.data = data
-        self.preprocessed_dir = Path(self.config["preprocessing"]["save_dir"])
+        self.preprocessed_dir = Path(self.config.preprocessing.save_dir)
         self.text_processor = TextProcessor(config)
-        self.sep = config["preprocessing"]["value_separator"]
-        random.seed(self.config["training"]["aligner"]["seed"])
-        self.sampling_rate = self.config["preprocessing"]["audio"][
-            "alignment_sampling_rate"
-        ]
+        self.sep = config.preprocessing.value_separator
+        random.seed(self.config.training.seed)
+        self.sampling_rate = self.config.preprocessing.audio.alignment_sampling_rate
 
     def _load_file(self, bn, spk, lang, fn):
         return torch.load(self.preprocessed_dir / self.sep.join([bn, spk, lang, fn]))
@@ -132,7 +130,7 @@ class AlignerDataset(Dataset):
                 basename,
                 speaker,
                 language,
-                f"spec-{self.sampling_rate}-{self.config['preprocessing']['audio']['spec_type']}.npy",
+                f"spec-{self.sampling_rate}-{self.config.preprocessing.audio.spec_type.value}.npy",
             )
             .squeeze()
             .transpose(0, 1)

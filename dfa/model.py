@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import numpy as np
 
 from .duration_extraction import extract_durations_with_dijkstra
-from smts.config.base_config import BaseConfig
+from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
 from smts.text import TextProcessor
 
 
@@ -36,26 +36,26 @@ class BatchNormConv(nn.Module):
 class Aligner(pl.LightningModule):
     def __init__(
         self,
-        config: BaseConfig,
+        config: DFAlignerConfig,
     ) -> None:
         super().__init__()
         self.config = config
-        self.preprocessed_dir = Path(self.config["preprocessing"]["save_dir"])
-        self.sep = config["preprocessing"]["value_separator"]
+        self.preprocessed_dir = Path(self.config.preprocessing.save_dir)
+        self.sep = self.config.preprocessing.value_separator
         self.text_processor = TextProcessor(config)
-        conv_dim = self.config["model"]["aligner"]["conv_dim"]
-        lstm_dim = self.config["model"]["aligner"]["lstm_dim"]
-        n_mels = self.config["preprocessing"]["audio"]["n_mels"]
+        conv_dim = self.config.model.conv_dim
+        lstm_dim = self.config.model.lstm_dim
+        n_mels = self.config.preprocessing.audio.n_mels
         num_symbols = len(self.text_processor.symbols)
         self.log_dir = os.path.join(
-            self.config["training"]["logger"]["save_dir"],
-            self.config["training"]["logger"]["name"],
+            self.config.training.logger.save_dir,
+            self.config.training.logger.name,
         )
         self.longest_mel = None
         self.longest_tokens = None
-        self.batch_size = self.config["training"]["aligner"][
-            "batch_size"
-        ]  # this is declared explicitly so that auto_scale_batch_size works: https://pytorch-lightning.readthedocs.io/en/stable/advanced/training_tricks.html
+        self.batch_size = (
+            self.config.training.batch_size
+        )  # this is declared explicitly so that auto_scale_batch_size works: https://pytorch-lightning.readthedocs.io/en/stable/advanced/training_tricks.html
         self.register_buffer("step", torch.tensor(1, dtype=torch.int))
         self.ctc_loss = nn.CTCLoss()
         self.save_hyperparameters()  # TODO: ignore=['specific keys'] - I should ignore some unnecessary/problem values
@@ -81,9 +81,7 @@ class Aligner(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optim = torch.optim.AdamW(
-            self.parameters(), self.config["training"]["aligner"]["learning_rate"]
-        )
+        optim = torch.optim.AdamW(self.parameters(), self.config.training.optimizer.learning_rate)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optim)
         return {
             "optimizer": optim,
@@ -92,8 +90,8 @@ class Aligner(pl.LightningModule):
         }
 
     def predict_step(self, batch, batch_idx):
-        save_dir = Path(self.config["preprocessing"]["save_dir"])
-        sep = self.config["preprocessing"]["value_separator"]
+        save_dir = Path(self.config.preprocessing.save_dir)
+        sep = self.config.preprocessing.value_separator
         tokens = batch["tokens"]
         mel = batch["mel"]
         mel_len = batch["mel_len"]
