@@ -74,16 +74,15 @@ def train(
     if config is not None and config:
         for update in config:
             key, value = update.split("=")
-            logger.info(f"Updating config '{key}' to value '{value}'")
-            original_config = original_config.update_config(
-                original_config, expand_config_string_syntax(update)
-            )
+            logger.info(f"Updating config key '{key}' to value '{value}'")
+            original_config = original_config.update_config(expand_config_string_syntax(update))
+        config = original_config
     else:
         config: DFAlignerConfig = original_config
     if config_path is not None:
         logger.info(f"Loading and updating config from '{config_path}'")
         config_override = json.load(config_path)
-        config = config.update_config(config, config_override)
+        config = config.update_config(config_override)
     tensorboard_logger = TensorBoardLogger(**(config.training.logger.dict()))
     lr_monitor = LearningRateMonitor(logging_interval="step")
     logger.info("Starting training for alignment model.")
@@ -133,12 +132,13 @@ def extract_alignments(
     if num_processes is None:
         num_processes = 4
     original_config = CONFIGS[name.value]
+    
     if config is not None and config:
         for update in config:
             key, value = update.split("=")
             logger.info(f"Updating config '{key}' to value '{value}'")
             original_config = original_config.update_config(
-                original_config, expand_config_string_syntax(update)
+                expand_config_string_syntax(update)
             )
     else:
         config = original_config
