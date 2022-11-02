@@ -1,20 +1,19 @@
 import os
-from pathlib import Path
 import random
+from pathlib import Path
 from random import Random
 from typing import List, Optional
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
+from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
+from smts.text import TextProcessor
 from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
-from torch.utils.data import random_split
-
-from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
-from smts.text import TextProcessor
 
 
 class AlignerDataModule(pl.LightningDataModule):

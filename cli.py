@@ -1,26 +1,25 @@
 import json
 import os
-import typer
-import yaml
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional
 
 import numpy as np
 import torch
-from enum import Enum
-from pathlib import Path
+import typer
+import yaml
+from loguru import logger
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
-from typing import List, Optional
-from tqdm import tqdm
-from loguru import logger
 from smts.preprocessor import Preprocessor
 from smts.utils import expand_config_string_syntax
+from tqdm import tqdm
 
 from dfa.config import CONFIGS, DFAlignerConfig
 from dfa.dataset import AlignerDataModule
 from dfa.model import Aligner
 from dfa.utils import extract_durations_for_item
-
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
@@ -75,7 +74,9 @@ def train(
         for update in config:
             key, value = update.split("=")
             logger.info(f"Updating config key '{key}' to value '{value}'")
-            original_config = original_config.update_config(expand_config_string_syntax(update))
+            original_config = original_config.update_config(
+                expand_config_string_syntax(update)
+            )
         config = original_config
     else:
         config: DFAlignerConfig = original_config
@@ -132,7 +133,7 @@ def extract_alignments(
     if num_processes is None:
         num_processes = 4
     original_config = CONFIGS[name.value]
-    
+
     if config is not None and config:
         for update in config:
             key, value = update.split("=")

@@ -56,10 +56,11 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     """
 
     pred_max = pred[:, tokens]
-    path_probs = 1. - pred_max
+    path_probs = 1.0 - pred_max
     adj_matrix = to_adj_matrix(path_probs)
-    dist_matrix, predecessors = dijkstra(csgraph=adj_matrix, directed=True,
-                                         indices=0, return_predecessors=True)
+    dist_matrix, predecessors = dijkstra(
+        csgraph=adj_matrix, directed=True, indices=0, return_predecessors=True
+    )
     path = []
     pr_index = predecessors[-1]
     while pr_index != 0:
@@ -68,7 +69,7 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     path.reverse()
 
     # append first and last node
-    path = [0] + path + [dist_matrix.size-1]
+    path = [0] + path + [dist_matrix.size - 1]
     cols = path_probs.shape[1]
     mel_text = {}
     durations = np.zeros(tokens.shape[0], dtype=np.int32)
@@ -86,13 +87,13 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
 
 def extract_durations_beam(tokens: np.array, pred: np.array, k: int) -> np.array:
     data = pred[:, tokens]
-    sequences = [[[0], - np.log(data[0,0])]] # always start on first position
+    sequences = [[[0], -np.log(data[0, 0])]]  # always start on first position
     for row in data[1:]:
-        all_candidates = list()
+        all_candidates = []
         # expand each current candidate
         for i in range(len(sequences)):
             seq, score = sequences[i]
-            for j in [seq[-1], seq[-1]+1]: # only allow 2 possible moves
+            for j in [seq[-1], seq[-1] + 1]:  # only allow 2 possible moves
                 if j < data.shape[-1]:
                     candidate = [seq + [j], score - np.log(row[j])]
                 else:
@@ -102,8 +103,5 @@ def extract_durations_beam(tokens: np.array, pred: np.array, k: int) -> np.array
         ordered = sorted(all_candidates, key=lambda tup: tup[1])
         # select k best
         sequences = ordered[:k]
-    durations = []
-    for sequence in sequences:
-        durations.append(np.bincount(sequence[0]))
-
+    durations = [np.bincount(sequence[0]) for sequence in sequences]
     return durations, sequences

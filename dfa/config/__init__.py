@@ -1,17 +1,17 @@
 from enum import Enum
 from pathlib import Path
 from typing import Dict, Union
-import yaml
 
+import yaml
+from smts.config.preprocessing_config import PreprocessingConfig
 from smts.config.shared_types import (
     AdamOptimizer,
     AdamWOptimizer,
+    BaseTrainingConfig,
     ConfigModel,
     PartialConfigModel,
-    BaseTrainingConfig,
 )
 from smts.config.text_config import TextConfig
-from smts.config.preprocessing_config import PreprocessingConfig
 
 
 class DFAlignerExtractionMethod(Enum):

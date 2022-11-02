@@ -1,13 +1,14 @@
 import os
+from pathlib import Path
+
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from pathlib import Path
-import pytorch_lightning as pl
-import numpy as np
-
-from .duration_extraction import extract_durations_with_dijkstra
 from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
 from smts.text import TextProcessor
+
+from .duration_extraction import extract_durations_with_dijkstra
 
 
 class BatchNormConv(nn.Module):
@@ -81,7 +82,9 @@ class Aligner(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optim = torch.optim.AdamW(self.parameters(), self.config.training.optimizer.learning_rate)
+        optim = torch.optim.AdamW(
+            self.parameters(), self.config.training.optimizer.learning_rate
+        )
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optim)
         return {
             "optimizer": optim,

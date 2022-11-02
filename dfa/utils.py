@@ -1,14 +1,10 @@
 import pickle
 from pathlib import Path
-from typing import Dict, List, Any, Union, Tuple
+from typing import Any, Dict, List, Union
 
-import numpy as np
 import yaml
 
-from .duration_extraction import (
-    extract_durations_with_dijkstra,
-    extract_durations_beam,
-)
+from .duration_extraction import extract_durations_beam, extract_durations_with_dijkstra
 
 
 def read_metafile(path: str) -> Dict[str, str]:
