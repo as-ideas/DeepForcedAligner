@@ -5,7 +5,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from smts.DeepForcedAligner.dfa.config import DFAlignerConfig
+from smts.DeepForcedAligner.dfaligner.config import DFAlignerConfig
 from smts.text import TextProcessor
 
 from .duration_extraction import extract_durations_with_dijkstra

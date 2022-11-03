@@ -20,7 +20,7 @@ with open(path.join(this_directory, "requirements.txt"), encoding="utf8") as f:
     REQS = f.read().splitlines()
 
 setup(
-    name="ctcfa",
+    name="dfaligner",
     python_requires=">=3.9",
     version=VERSION,
     author="Aidan Pine",
@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=REQS,
-    entry_points={"console_scripts": ["ctcfa = cli:app"]},
+    entry_points={"console_scripts": ["dfaligner = dfaligner.cli:app"]},
     zip_safe=False,
     classifiers=[
         "Programming Language :: Python :: 3",
