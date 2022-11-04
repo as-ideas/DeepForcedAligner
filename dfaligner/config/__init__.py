@@ -2,7 +2,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Union
 
-import yaml
 from smts.config.preprocessing_config import PreprocessingConfig
 from smts.config.shared_types import (
     AdamOptimizer,
@@ -12,6 +11,7 @@ from smts.config.shared_types import (
     PartialConfigModel,
 )
 from smts.config.text_config import TextConfig
+from smts.utils import load_config_from_json_or_yaml_path
 
 
 class DFAlignerExtractionMethod(Enum):
@@ -40,8 +40,7 @@ class DFAlignerConfig(PartialConfigModel):
     @staticmethod
     def load_config_from_path(path: Path) -> dict:
         """Load a config from a path"""
-        with open(path) as f:
-            config = yaml.safe_load(f)
+        config = load_config_from_json_or_yaml_path(path)
         return DFAlignerConfig(**config)
 
 
