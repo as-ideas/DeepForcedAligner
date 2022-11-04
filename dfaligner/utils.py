@@ -4,7 +4,10 @@ from typing import Any, Dict, List, Union
 
 import yaml
 
-from .duration_extraction import extract_durations_beam, extract_durations_with_dijkstra
+from dfaligner.duration_extraction import (
+    extract_durations_beam,
+    extract_durations_with_dijkstra,
+)
 
 
 def read_metafile(path: str) -> Dict[str, str]:
@@ -47,8 +50,8 @@ def extract_durations_for_item(item, tokens, pred, method: str = "beam"):
     tokens = tokens[:tokens_len]
     pred = pred[:mel_len, :]
     if method == "beam":
-        durations, _ = extract_durations_beam(tokens, pred, 10)
-        durations = durations[0]
+        duration_candidates, _ = extract_durations_beam(tokens, pred, 10)
+        durations = duration_candidates[0]
     elif method == "dijkstra":
         durations = extract_durations_with_dijkstra(tokens, pred)
     else:

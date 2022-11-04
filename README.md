@@ -8,7 +8,7 @@
 
 🚧 Under Construction! This repo is not expected to work fully. Please check back later for a stable release. 🚧
 
-> A fork of the DeepForcedAligner project implemented in Pytorch Lightning
+> A fork of the DeepForcedAligner project implemented in PyTorch Lightning
 
 From the original authors:
 

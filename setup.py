@@ -1,11 +1,12 @@
 """ Setup for smts
 """
+
 import datetime as dt
 from os import path
 
 from setuptools import find_packages, setup
 
-build_no = dt.datetime.today().strftime("%Y%m%d")
+build_no = dt.datetime.now().strftime("%Y%m%d")
 
 # Ugly hack to read the current version number without importing g2p:
 # (works by )

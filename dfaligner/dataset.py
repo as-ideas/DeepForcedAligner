@@ -2,18 +2,19 @@ import os
 import random
 from pathlib import Path
 from random import Random
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from smts.DeepForcedAligner.dfaligner.config import DFAlignerConfig
 from smts.text import TextProcessor
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
+
+from dfaligner.config import DFAlignerConfig
 
 
 class AlignerDataModule(pl.LightningDataModule):
@@ -153,7 +154,7 @@ class AlignerDataset(Dataset):
 
 # From https://github.com/fatchord/WaveRNN/blob/master/utils/dataset.py
 class BinnedLengthSampler(Sampler):
-    def __init__(self, mel_lens: torch.tensor, batch_size: int, bin_size: int, seed=42):
+    def __init__(self, mel_lens: torch.Tensor, batch_size: int, bin_size: int, seed=42):
         _, self.idx = torch.sort(torch.tensor(mel_lens))
         self.batch_size = batch_size
         self.bin_size = bin_size
@@ -179,11 +180,13 @@ class BinnedLengthSampler(Sampler):
         return len(self.idx)
 
 
-def collate_dataset(batch: List[dict]) -> torch.tensor:
-    tokens = [b["tokens"] for b in batch]
-    tokens = pad_sequence(tokens, batch_first=True, padding_value=0)
-    mels = [b["mel"] for b in batch]
-    mels = pad_sequence(mels, batch_first=True, padding_value=0)
+def collate_dataset(batch: List[dict]) -> Dict[str, Union[torch.Tensor, List[str]]]:
+    tokens: torch.Tensor = pad_sequence(
+        [b["tokens"] for b in batch], batch_first=True, padding_value=0
+    )
+    mels: torch.Tensor = pad_sequence(
+        [b["mel"] for b in batch], batch_first=True, padding_value=0
+    )
     tokens_len = torch.tensor([b["tokens_len"] for b in batch]).long()
     mel_len = torch.tensor([b["mel_len"] for b in batch]).long()
     return {

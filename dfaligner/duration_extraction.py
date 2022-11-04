@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
@@ -49,7 +51,7 @@ def to_adj_matrix(mat):
     return adj_mat.tocsr()
 
 
-def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.array:
+def extract_durations_with_dijkstra(tokens: np.ndarray, pred: np.ndarray) -> np.ndarray:
     """
     Extracts durations from the attention matrix by finding the shortest monotonic path from
     top left to bottom right.
@@ -85,9 +87,11 @@ def extract_durations_with_dijkstra(tokens: np.array, pred: np.array) -> np.arra
     return durations
 
 
-def extract_durations_beam(tokens: np.array, pred: np.array, k: int) -> np.array:
+def extract_durations_beam(
+    tokens: np.ndarray, pred: np.ndarray, k: int
+) -> Tuple[List[np.ndarray], List[List[np.ndarray]]]:
     data = pred[:, tokens]
-    sequences = [[[0], -np.log(data[0, 0])]]  # always start on first position
+    sequences = [[np.array([0]), -np.log(data[0, 0])]]  # always start on first position
     for row in data[1:]:
         all_candidates = []
         # expand each current candidate
