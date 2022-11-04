@@ -7,8 +7,8 @@ import torch
 import torch.nn as nn
 from smts.text import TextProcessor
 
-from dfaligner.config import DFAlignerConfig
-from dfaligner.duration_extraction import extract_durations_with_dijkstra
+from .config import DFAlignerConfig
+from .duration_extraction import extract_durations_with_dijkstra
 
 
 class BatchNormConv(nn.Module):

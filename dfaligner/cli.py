@@ -14,10 +14,10 @@ from smts.preprocessor import Preprocessor
 from smts.utils import update_config_from_cli_args, update_config_from_path
 from tqdm import tqdm
 
-from dfaligner.config import CONFIGS, DFAlignerConfig
-from dfaligner.dataset import AlignerDataModule
-from dfaligner.model import Aligner
-from dfaligner.utils import extract_durations_for_item
+from .config import CONFIGS, DFAlignerConfig
+from .dataset import AlignerDataModule
+from .model import Aligner
+from .utils import extract_durations_for_item
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 

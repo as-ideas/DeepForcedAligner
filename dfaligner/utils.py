@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 
 import yaml
 
-from dfaligner.duration_extraction import (
+from .duration_extraction import (
     extract_durations_beam,
     extract_durations_with_dijkstra,
 )

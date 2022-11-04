@@ -14,7 +14,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
 
-from dfaligner.config import DFAlignerConfig
+from .config import DFAlignerConfig
 
 
 class AlignerDataModule(pl.LightningDataModule):
