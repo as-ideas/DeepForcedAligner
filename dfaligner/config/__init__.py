@@ -44,6 +44,6 @@ class DFAlignerConfig(PartialConfigModel):
         return DFAlignerConfig(**config)
 
 
-CONFIGS: Dict[str, DFAlignerConfig] = {
-    "base": DFAlignerConfig.load_config_from_path(Path(__file__).parent / "base.yaml"),
+CONFIGS: Dict[str, Path] = {
+    "base": Path(__file__).parent / "base.yaml",
 }
