@@ -3,20 +3,11 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
-import numpy as np
-import torch
 import typer
 from loguru import logger
-from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-from pytorch_lightning.loggers import TensorBoardLogger
-from smts.preprocessor import Preprocessor
-from smts.utils import update_config_from_cli_args, update_config_from_path
 from tqdm import tqdm
 
 from .config import CONFIGS, DFAlignerConfig
-from .dataset import AlignerDataModule
-from .model import Aligner
 from .utils import extract_durations_for_item
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
@@ -41,6 +32,8 @@ def preprocess(
     ),
     overwrite: bool = typer.Option(False, "-O", "--overwrite"),
 ):
+    from smts.preprocessor import Preprocessor
+
     config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
     preprocessor = Preprocessor(config)
     to_preprocess = {k: k in data for k in PreprocessCategories.__members__.keys()}  # type: ignore
@@ -67,6 +60,14 @@ def train(
     config_args: List[str] = typer.Option(None, "--config", "-c"),
     config_path: Path = typer.Option(None, exists=True, dir_okay=False, file_okay=True),
 ):
+    from pytorch_lightning import Trainer
+    from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+    from pytorch_lightning.loggers import TensorBoardLogger
+    from smts.utils import update_config_from_cli_args, update_config_from_path
+
+    from .dataset import AlignerDataModule
+    from .model import Aligner
+
     original_config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
     config: DFAlignerConfig = update_config_from_cli_args(config_args, original_config)
     config = update_config_from_path(config_path, config)
@@ -115,6 +116,14 @@ def extract_alignments(
     config_path: Path = typer.Option(None, exists=True, dir_okay=False, file_okay=True),
     num_processes: int = typer.Option(None),
 ):
+    import numpy as np
+    import torch
+    from pytorch_lightning import Trainer
+    from smts.utils import update_config_from_cli_args, update_config_from_path
+
+    from .dataset import AlignerDataModule
+    from .model import Aligner
+
     # TODO: make this faster
     if num_processes is None:
         num_processes = 4
