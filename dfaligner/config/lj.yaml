@@ -18,14 +18,14 @@ training:
   max_epochs: 1000
   seed: 1234
   finetune_checkpoint: null
-  filelist: "./preprocessed/YourLanguageHere/processed_filelist.psv"
+  filelist: "./preprocessed/LJ/processed_filelist.psv"
   filelist_loader: "smts.utils.generic_dict_loader"
   logger:
-    name: "Base Experiment"
+    name: "LJ"
     save_dir: "./logs"
     sub_dir: "smts.utils.get_current_time"
     version: "alignment-base"
   val_data_workers: 0
   train_data_workers: 0
-preprocessing: "./config/default/preprocessing.yaml"
+preprocessing: "./config/lj/preprocessing.yaml"
 text: "./config/default/text_eng.yaml"

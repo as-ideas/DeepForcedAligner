@@ -46,4 +46,5 @@ class DFAlignerConfig(PartialConfigModel):
 
 CONFIGS: Dict[str, Path] = {
     "base": Path(__file__).parent / "base.yaml",
+    "lj": Path(__file__).parent / "lj.yaml",
 }
