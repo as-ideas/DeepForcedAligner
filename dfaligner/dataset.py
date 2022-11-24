@@ -117,8 +117,10 @@ class AlignerDataset(Dataset):
         random.seed(self.config.training.seed)
         self.sampling_rate = self.config.preprocessing.audio.alignment_sampling_rate
 
-    def _load_file(self, bn, spk, lang, fn):
-        return torch.load(self.preprocessed_dir / self.sep.join([bn, spk, lang, fn]))
+    def _load_file(self, bn, spk, lang, dir, fn):
+        return torch.load(
+            self.preprocessed_dir / dir / self.sep.join([bn, spk, lang, fn])
+        )
 
     def __getitem__(self, index):
         item = self.data[index]
@@ -130,12 +132,13 @@ class AlignerDataset(Dataset):
                 basename,
                 speaker,
                 language,
-                f"spec-{self.sampling_rate}-{self.config.preprocessing.audio.spec_type}.npy",
+                "spec",
+                f"spec-{self.sampling_rate}-{self.config.preprocessing.audio.spec_type}.pt",
             )
             .squeeze()
             .transpose(0, 1)
         )  # [mel_bins, frames] -> [frames, mel_bins]
-        text_tokens = self._load_file(basename, speaker, language, "text.npy")
+        text_tokens = self._load_file(basename, speaker, language, "text", "text.pt")
         tokens_len = text_tokens.size(0)
         mel_len = mel.size(0)
         return {

@@ -3,11 +3,22 @@ from pathlib import Path
 from typing import Any, Dict, List, Union
 
 import yaml
+from pympi.Praat import TextGrid
 
-from .duration_extraction import (
-    extract_durations_beam,
-    extract_durations_with_dijkstra,
-)
+from .duration_extraction import extract_durations_beam, extract_durations_with_dijkstra
+
+
+def create_textgrid(save_path, tokens, durations, hop_size, sample_rate):
+    tg = TextGrid(xmax=(sum(durations) * hop_size) / sample_rate)
+    token_tier = tg.add_tier(name="Tokens")
+    current_time = 0
+    for i, d in enumerate(durations):
+        dur_seconds = (d * hop_size) / sample_rate
+        token_tier.add_interval(
+            begin=current_time, end=current_time + dur_seconds, value=tokens[i]
+        )
+        current_time += dur_seconds
+    tg.to_file(save_path)
 
 
 def read_metafile(path: str) -> Dict[str, str]:

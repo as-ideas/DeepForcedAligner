@@ -108,7 +108,9 @@ class Aligner(pl.LightningModule):
             speaker = batch["speaker"][b]
             language = batch["language"][b]
             np.save(
-                save_dir / sep.join([basename, speaker, language, "duration.npy"]),
+                save_dir
+                / "duration"
+                / sep.join([basename, speaker, language, "duration.npy"]),
                 pred,
                 allow_pickle=False,
             )
@@ -143,8 +145,8 @@ class Aligner(pl.LightningModule):
             self.longest_tokens.squeeze(0).numpy(), pred.numpy()
         )
         pred_max = pred.max(1)[1].numpy().tolist()
-        pred_text = self.text_processor.sequence_to_text(pred_max)
-        target_text = self.text_processor.sequence_to_text(
+        pred_text = self.text_processor.token_sequence_to_text(pred_max)
+        target_text = self.text_processor.token_sequence_to_text(
             self.longest_tokens.squeeze().tolist()
         )
         target_duration_rep = "".join(

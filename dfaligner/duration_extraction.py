@@ -91,7 +91,7 @@ def extract_durations_beam(
     tokens: np.ndarray, pred: np.ndarray, k: int
 ) -> Tuple[List[np.ndarray], List[List[np.ndarray]]]:
     data = pred[:, tokens]
-    sequences = [[np.array([0]), -np.log(data[0, 0])]]  # always start on first position
+    sequences = [[[0], -np.log(data[0, 0])]]  # always start on first position
     for row in data[1:]:
         all_candidates = []
         # expand each current candidate
