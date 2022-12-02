@@ -11,7 +11,7 @@ from smts.config.shared_types import (
     PartialConfigModel,
 )
 from smts.config.text_config import TextConfig
-from smts.utils import load_config_from_json_or_yaml_path
+from smts.utils import load_config_from_json_or_yaml_path, return_configs_from_dir
 
 
 class DFAlignerExtractionMethod(Enum):
@@ -38,13 +38,11 @@ class DFAlignerConfig(PartialConfigModel):
     text: TextConfig
 
     @staticmethod
-    def load_config_from_path(path: Path) -> dict:
+    def load_config_from_path(path: Path) -> "DFAlignerConfig":
         """Load a config from a path"""
         config = load_config_from_json_or_yaml_path(path)
         return DFAlignerConfig(**config)
 
 
-CONFIGS: Dict[str, Path] = {
-    "base": Path(__file__).parent / "base.yaml",
-    "lj": Path(__file__).parent / "lj.yaml",
-}
+CONFIG_DIR = Path(__file__).parent
+CONFIGS: Dict[str, Path] = return_configs_from_dir(CONFIG_DIR)
