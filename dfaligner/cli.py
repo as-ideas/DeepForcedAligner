@@ -162,6 +162,9 @@ def extract_alignments(
     import torch
 
     pbar.update()
+    from pytorch_lightning.loggers import TensorBoardLogger
+
+    pbar.update()
     from pytorch_lightning import Trainer
 
     pbar.update()
@@ -179,12 +182,14 @@ def extract_alignments(
 
     data = AlignerDataModule(config)
     if predict:
+        tensorboard_logger = TensorBoardLogger(**(config.training.logger.dict()))
         trainer = Trainer(
-            accelerator=accelerator,
-            devices=devices,
+            accelerator=accelerator, devices=devices, logger=tensorboard_logger
         )
         if model_path:
-            model = Aligner.load_from_checkpoint(model_path.absolute().as_posix())
+            model: Aligner = Aligner.load_from_checkpoint(
+                model_path.absolute().as_posix()
+            )
             # TODO: check into the best way to update config from re-loaded model
             # model.update_config(config)
             model.config = config
@@ -215,7 +220,9 @@ def extract_alignments(
             # ignore mypy type checking because https://github.com/pydantic/pydantic/issues/3809
             method=config.training.extraction_method,  # type: ignore
         )
-
+        assert len(durations) == len(
+            tokens
+        ), f"Length of tokens and durations must be the same, but was not for {basename}. Try re-running with dijkstra extraction method. This might be because your model was not trained properly or because you are showing it unseen data."
         if tg_processed < create_n_textgrids:
             (save_dir / "text_grid").mkdir(parents=True, exist_ok=True)
             create_textgrid(
