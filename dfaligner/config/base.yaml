@@ -18,7 +18,7 @@ training:
   max_epochs: 1000
   seed: 1234
   finetune_checkpoint: null
-  filelist: "./preprocessed/YourLanguageHere/processed_filelist.psv"
+  filelist: "./preprocessed/YourDataSet/processed_filelist.psv"
   filelist_loader: "smts.utils.generic_dict_loader"
   logger:
     name: "Base Experiment"
