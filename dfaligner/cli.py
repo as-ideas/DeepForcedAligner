@@ -5,11 +5,9 @@ from typing import List, Optional
 
 import typer
 from loguru import logger
-from smts.text import TextProcessor
 from tqdm import tqdm
 
 from .config import CONFIGS, DFAlignerConfig
-from .utils import create_textgrid, extract_durations_for_item
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
@@ -148,6 +146,8 @@ def extract_alignments(
 ):
     from smts.utils import update_config_from_cli_args, update_config_from_path
 
+    from .utils import create_textgrid, extract_durations_for_item
+
     original_config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
     config: DFAlignerConfig = update_config_from_cli_args(config_args, original_config)
     config = update_config_from_path(config_path, config)
@@ -172,6 +172,8 @@ def extract_alignments(
     from .dataset import AlignerDataModule
 
     pbar.update()
+    from smts.text import TextProcessor
+
     from .model import Aligner
 
     pbar.update()
