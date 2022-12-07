@@ -2,6 +2,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Union
 
+from pydantic import Field
 from smts.config.preprocessing_config import PreprocessingConfig
 from smts.config.shared_types import (
     AdamOptimizer,
@@ -20,22 +21,24 @@ class DFAlignerExtractionMethod(Enum):
 
 
 class DFAlignerModelConfig(ConfigModel):
-    lstm_dim: int
-    conv_dim: int
+    lstm_dim: int = 512
+    conv_dim: int = 512
 
 
 class DFAlignerTrainingConfig(BaseTrainingConfig):
-    optimizer: Union[AdamOptimizer, AdamWOptimizer]
-    binned_sampler: bool
-    plot_steps: int
-    extraction_method: DFAlignerExtractionMethod
+    optimizer: Union[AdamOptimizer, AdamWOptimizer] = Field(
+        default_factory=AdamWOptimizer
+    )
+    binned_sampler: bool = True
+    plot_steps: int = 1000
+    extraction_method: DFAlignerExtractionMethod = DFAlignerExtractionMethod.beam
 
 
 class DFAlignerConfig(PartialConfigModel):
-    model: DFAlignerModelConfig
-    training: DFAlignerTrainingConfig
-    preprocessing: PreprocessingConfig
-    text: TextConfig
+    model: DFAlignerModelConfig = Field(default_factory=DFAlignerModelConfig)
+    training: DFAlignerTrainingConfig = Field(default_factory=DFAlignerTrainingConfig)
+    preprocessing: PreprocessingConfig = Field(default_factory=PreprocessingConfig)
+    text: TextConfig = Field(default_factory=TextConfig)
 
     @staticmethod
     def load_config_from_path(path: Path) -> "DFAlignerConfig":
