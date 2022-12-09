@@ -153,14 +153,14 @@ class Aligner(pl.LightningModule):
             c * durations[i]
             for i, c in enumerate(self.text_processor._tokenizer.tokenize(target_text))
         )
-        tensoboard = self.logger.experiment
-        tensoboard.add_text(
+        tensorboard = self.logger.experiment
+        tensorboard.add_text(
             "validation/prediction", f"    {pred_text}", global_step=self.global_step
         )
-        tensoboard.add_text(
+        tensorboard.add_text(
             "validation/target", f"    {target_text}", global_step=self.global_step
         )
-        tensoboard.add_text(
+        tensorboard.add_text(
             "validation/target_duration_rep",
             f"    {target_duration_rep}",
             global_step=self.global_step,
