@@ -66,25 +66,35 @@ def train(name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"), **kwargs):
 
 @app.command()
 def extract_alignments(
-    name: CONFIGS_ENUM,
+    name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"),
     accelerator: str = typer.Option("auto", "--accelerator", "-a"),
     devices: str = typer.Option("auto", "--devices", "-d"),
     model_path: Path = typer.Option(
         None, "--model", "-m", exists=True, file_okay=True, dir_okay=False
     ),
     config_args: List[str] = typer.Option(None, "--config", "-c"),
-    config_path: Path = typer.Option(None, exists=True, dir_okay=False, file_okay=True),
+    config_path: Path = typer.Option(
+        None, "--config-path", "-p", exists=True, dir_okay=False, file_okay=True
+    ),
     num_processes: int = typer.Option(None),
     predict: bool = typer.Option(True),
     create_n_textgrids: int = typer.Option(5, "--tg", "--n_textgrids"),
 ):
-    from smts.utils import update_config_from_cli_args, update_config_from_path
+    from smts.utils import update_config_from_cli_args
 
     from .utils import create_textgrid, extract_durations_for_item
 
-    original_config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
-    config: DFAlignerConfig = update_config_from_cli_args(config_args, original_config)
-    config = update_config_from_path(config_path, config)
+    if config_path:
+        config = DFAlignerConfig.load_config_from_path(config_path)
+    elif name:
+        config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
+    else:
+        logger.error(
+            "You must either choose a <NAME> of a preconfigured dataset, or provide a <CONFIG_PATH> to a preprocessing configuration file."
+        )
+        exit()
+
+    config = update_config_from_cli_args(config_args, config)
 
     # Imports
     logger.info("Loading modules for alignment...")
@@ -117,6 +127,8 @@ def extract_alignments(
         num_processes = 4
 
     data = AlignerDataModule(config)
+    save_dir = Path(config.preprocessing.save_dir)
+    (save_dir / "duration").mkdir(exist_ok=True, parents=True)
     if predict:
         tensorboard_logger = TensorBoardLogger(**(config.training.logger.dict()))
         trainer = Trainer(
@@ -133,7 +145,6 @@ def extract_alignments(
         else:
             trainer.predict(dataloaders=data)
     sep = config.preprocessing.value_separator
-    save_dir = Path(config.preprocessing.save_dir)
     tg_processed = 0
     text_processor = TextProcessor(config)
     for item in tqdm(
