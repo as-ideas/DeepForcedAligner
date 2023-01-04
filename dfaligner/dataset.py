@@ -8,6 +8,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from smts.text import TextProcessor
+from smts.utils import check_dataset_size
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
@@ -37,6 +38,7 @@ class AlignerDataModule(pl.LightningDataModule):
         )
 
         self.load_dataset()
+        self.dataset_length = len(self.dataset)
 
     def setup(self, stage: Optional[str] = None):
         # load it back here
@@ -73,10 +75,13 @@ class AlignerDataModule(pl.LightningDataModule):
         )
 
     def prepare_data(self):
-        train_split = int(len(self.dataset) * self.train_split)
+        train_samples = int(self.dataset_length * self.train_split)
+        val_samples = self.dataset_length - train_samples
         self.train_dataset, self.val_dataset = random_split(
-            self.dataset, [train_split, len(self.dataset) - train_split]
+            self.dataset, [train_samples, val_samples]
         )
+        check_dataset_size(self.batch_size, train_samples, "training")
+        check_dataset_size(self.batch_size, val_samples, "validation")
         self.train_dataset = AlignerDataset(self.train_dataset, self.config)
         self.val_dataset = AlignerDataset(self.val_dataset, self.config)
         if self.config.training.binned_sampler:

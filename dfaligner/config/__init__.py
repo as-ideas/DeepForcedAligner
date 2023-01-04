@@ -31,7 +31,7 @@ class DFAlignerTrainingConfig(BaseTrainingConfig):
     )
     binned_sampler: bool = True
     plot_steps: int = 1000
-    extraction_method: DFAlignerExtractionMethod = DFAlignerExtractionMethod.beam
+    extraction_method: DFAlignerExtractionMethod = DFAlignerExtractionMethod.dijkstra
 
 
 class DFAlignerConfig(PartialConfigModel):
