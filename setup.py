@@ -1,4 +1,4 @@
-""" Setup for smts
+""" Setup for DFAligner
 """
 
 import datetime as dt

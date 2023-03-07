@@ -5,7 +5,7 @@ from typing import List, Optional
 import typer
 from loguru import logger
 from merge_args import merge_args
-from smts.base_cli.interfaces import (
+from everyvoice.base_cli.interfaces import (
     preprocess_base_command_interface,
     train_base_command_interface,
 )
@@ -33,7 +33,7 @@ def preprocess(
     data: Optional[List[PreprocessCategories]] = typer.Option(None, "-d", "--data"),
     **kwargs,
 ):
-    from smts.base_cli.helpers import preprocess_base_command
+    from everyvoice.base_cli.helpers import preprocess_base_command
 
     preprocess_base_command(
         name=name,
@@ -48,7 +48,7 @@ def preprocess(
 @app.command()
 @merge_args(train_base_command_interface)
 def train(name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"), **kwargs):
-    from smts.base_cli.helpers import train_base_command
+    from everyvoice.base_cli.helpers import train_base_command
 
     from .dataset import AlignerDataModule
     from .model import Aligner
@@ -80,7 +80,7 @@ def extract_alignments(
     predict: bool = typer.Option(True),
     create_n_textgrids: int = typer.Option(5, "--tg", "--n_textgrids"),
 ):
-    from smts.utils import update_config_from_cli_args
+    from everyvoice.utils import update_config_from_cli_args
 
     from .utils import create_textgrid, extract_durations_for_item
 
@@ -112,11 +112,11 @@ def extract_alignments(
     from pytorch_lightning import Trainer
 
     pbar.update()
-    pbar.set_description("Loading SmallTeamSpeech modules")
+    pbar.set_description("Loading EveryVoice modules")
     from .dataset import AlignerDataModule
 
     pbar.update()
-    from smts.text import TextProcessor
+    from everyvoice.text import TextProcessor
 
     from .model import Aligner
 

@@ -22,7 +22,7 @@ From the original authors:
 > The approach is based on training a simple speech recognition model with CTC loss on mel spectrograms extracted from the wav files.
 
 
-This repo has been separated in case you would like to use it separately from the broader SGILE system, but if you are looking to build speech synthesis systems from scratch, please visit [the main repository](https://github.com/roedoejet/SmallTeamSpeech)
+This repo has been separated in case you would like to use it separately from the broader SGILE system, but if you are looking to build speech synthesis systems from scratch, please visit [the main repository](https://github.com/roedoejet/EveryVoice)
 
 ## Table of Contents
 - DeepForcedAligner

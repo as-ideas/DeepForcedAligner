@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from smts.text import TextProcessor
-from smts.utils import check_dataset_size
+from everyvoice.text import TextProcessor
+from everyvoice.utils import check_dataset_size
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader

@@ -3,16 +3,16 @@ from pathlib import Path
 from typing import Dict, Union
 
 from pydantic import Field
-from smts.config.preprocessing_config import PreprocessingConfig
-from smts.config.shared_types import (
+from everyvoice.config.preprocessing_config import PreprocessingConfig
+from everyvoice.config.shared_types import (
     AdamOptimizer,
     AdamWOptimizer,
     BaseTrainingConfig,
     ConfigModel,
     PartialConfigModel,
 )
-from smts.config.text_config import TextConfig
-from smts.utils import load_config_from_json_or_yaml_path, return_configs_from_dir
+from everyvoice.config.text_config import TextConfig
+from everyvoice.utils import load_config_from_json_or_yaml_path, return_configs_from_dir
 
 
 class DFAlignerExtractionMethod(Enum):
