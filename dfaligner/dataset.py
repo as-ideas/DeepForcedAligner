@@ -1,5 +1,4 @@
 import os
-import random
 from pathlib import Path
 from random import Random
 from typing import Dict, List, Optional, Union
@@ -10,7 +9,6 @@ import torch
 from everyvoice.text import TextProcessor
 from everyvoice.utils import check_dataset_size
 from torch.nn.utils.rnn import pad_sequence
-from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.sampler import Sampler
@@ -25,7 +23,6 @@ class AlignerDataModule(pl.LightningDataModule):
         self.train_sampler = None
         self.val_sampler = None
         self.batch_size = config.training.batch_size
-        self.train_split = config.training.train_split
         self.train_path = os.path.join(
             config.training.logger.save_dir,
             config.training.logger.name,
@@ -38,7 +35,7 @@ class AlignerDataModule(pl.LightningDataModule):
         )
 
         self.load_dataset()
-        self.dataset_length = len(self.dataset)
+        self.dataset_length = len(self.train_dataset) + len(self.val_dataset)
 
     def setup(self, stage: Optional[str] = None):
         # load it back here
@@ -67,7 +64,7 @@ class AlignerDataModule(pl.LightningDataModule):
 
     def predict_dataloader(self):
         return DataLoader(
-            AlignerDataset(self.dataset, self.config),
+            AlignerDataset(self.train_dataset + self.val_dataset, self.config),
             batch_size=self.batch_size,
             pin_memory=True,
             collate_fn=collate_dataset,
@@ -75,11 +72,8 @@ class AlignerDataModule(pl.LightningDataModule):
         )
 
     def prepare_data(self):
-        train_samples = int(self.dataset_length * self.train_split)
-        val_samples = self.dataset_length - train_samples
-        self.train_dataset, self.val_dataset = random_split(
-            self.dataset, [train_samples, val_samples]
-        )
+        train_samples = len(self.train_dataset)
+        val_samples = len(self.val_dataset)
         check_dataset_size(self.batch_size, train_samples, "training")
         check_dataset_size(self.batch_size, val_samples, "validation")
         self.train_dataset = AlignerDataset(self.train_dataset, self.config)
@@ -106,8 +100,11 @@ class AlignerDataModule(pl.LightningDataModule):
 
     def load_dataset(self):
         # Can use same filelist as for feature prediction
-        self.dataset = self.config.training.filelist_loader(
-            self.config.training.filelist
+        self.train_dataset = self.config.training.filelist_loader(
+            self.config.training.training_filelist
+        )
+        self.val_dataset = self.config.training.filelist_loader(
+            self.config.training.validation_filelist
         )
 
 
@@ -119,7 +116,6 @@ class AlignerDataset(Dataset):
         self.preprocessed_dir = Path(self.config.preprocessing.save_dir)
         self.text_processor = TextProcessor(config)
         self.sep = config.preprocessing.value_separator
-        random.seed(self.config.training.seed)
         self.sampling_rate = self.config.preprocessing.audio.alignment_sampling_rate
 
     def _load_file(self, bn, spk, lang, dir, fn):
