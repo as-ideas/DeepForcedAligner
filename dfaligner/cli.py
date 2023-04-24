@@ -3,12 +3,12 @@ from pathlib import Path
 from typing import List, Optional
 
 import typer
-from loguru import logger
-from merge_args import merge_args
 from everyvoice.base_cli.interfaces import (
     preprocess_base_command_interface,
     train_base_command_interface,
 )
+from loguru import logger
+from merge_args import merge_args
 from tqdm import tqdm
 
 from .config import CONFIGS, DFAlignerConfig
