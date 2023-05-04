@@ -6,10 +6,6 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
         exclude: \.svg$
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
-    hooks:
-    -   id: flake8
 -   repo: local
     # Using local repos because these won't work for me from remote repo -EJ
     # They're also more convenient because we install them via requirements.dev.txt
@@ -33,3 +29,7 @@ repos:
         language: system
         types: [python]
         stages: [commit]
+-   repo: https://github.com/PyCQA/flake8
+    rev: 3.8.3
+    hooks:
+    -   id: flake8
