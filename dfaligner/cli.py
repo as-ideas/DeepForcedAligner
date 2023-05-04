@@ -13,7 +13,10 @@ from tqdm import tqdm
 
 from .config import CONFIGS, DFAlignerConfig
 
-app = typer.Typer(pretty_exceptions_show_locals=False)
+app = typer.Typer(
+    pretty_exceptions_show_locals=False,
+    help="A fork of the DeepForcedAligner project implemented in PyTorch Lightning",
+)
 
 _config_keys = {k: k for k in CONFIGS.keys()}
 
