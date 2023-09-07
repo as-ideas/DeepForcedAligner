@@ -21,7 +21,7 @@ training:
   filelist_loader: "everyvoice.utils.generic_dict_loader"
   logger:
     name: "LJ"
-    save_dir: "./logs"
+    save_dir: "./logs_and_checkpoints"
     sub_dir: "everyvoice.utils.get_current_time"
     version: "alignment-base"
   val_data_workers: 0
