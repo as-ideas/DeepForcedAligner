@@ -32,8 +32,10 @@ class PreprocessCategories(str, Enum):
 @app.command()
 @merge_args(preprocess_base_command_interface)
 def preprocess(
+    steps: Optional[List[PreprocessCategories]] = [
+        cat.value for cat in PreprocessCategories
+    ],
     name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"),
-    data: Optional[List[PreprocessCategories]] = typer.Option(None, "-d", "--data"),
     **kwargs,
 ):
     from everyvoice.base_cli.helpers import preprocess_base_command
@@ -42,7 +44,7 @@ def preprocess(
         name=name,
         configs=CONFIGS,
         model_config=DFAlignerConfig,
-        data=data,
+        steps=steps,
         preprocess_categories=PreprocessCategories,
         **kwargs,
     )
