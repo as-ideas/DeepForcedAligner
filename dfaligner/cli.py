@@ -10,18 +10,13 @@ from everyvoice.base_cli.interfaces import (
 from loguru import logger
 from merge_args import merge_args
 from tqdm import tqdm
-from typing_extensions import Annotated
 
-from .config import CONFIGS, DFAlignerConfig
+from .config import DFAlignerConfig
 
 app = typer.Typer(
     pretty_exceptions_show_locals=False,
     help="A fork of the DeepForcedAligner project implemented in PyTorch Lightning",
 )
-
-_config_keys = {k: k for k in CONFIGS.keys()}
-
-CONFIGS_ENUM = Enum("CONFIGS", _config_keys)  # type: ignore
 
 
 class PreprocessCategories(str, Enum):
@@ -33,36 +28,33 @@ class PreprocessCategories(str, Enum):
 @app.command()
 @merge_args(preprocess_base_command_interface)
 def preprocess(
-    steps: Annotated[List[PreprocessCategories], typer.Argument()] = None,
-    name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"),
+    steps: List[PreprocessCategories] = typer.Option(
+        [cat.value for cat in PreprocessCategories],
+        "-s",
+        "--steps",
+        help="Which steps of the preprocessor to use. If none are provided, all steps will be performed.",
+    ),
     **kwargs,
 ):
-    if not steps:
-        steps = [cat.value for cat in PreprocessCategories]
     from everyvoice.base_cli.helpers import preprocess_base_command
 
     preprocess_base_command(
-        name=name,
-        configs=CONFIGS,
         model_config=DFAlignerConfig,
-        steps=steps,
-        preprocess_categories=PreprocessCategories,
+        steps=[step.name for step in steps],
         **kwargs,
     )
 
 
 @app.command()
 @merge_args(train_base_command_interface)
-def train(name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"), **kwargs):
+def train(**kwargs):
     from everyvoice.base_cli.helpers import train_base_command
 
     from .dataset import AlignerDataModule
     from .model import Aligner
 
     train_base_command(
-        name=name,
         model_config=DFAlignerConfig,
-        configs=CONFIGS,
         model=Aligner,
         data_module=AlignerDataModule,
         monitor="validation/loss",
@@ -72,7 +64,6 @@ def train(name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"), **kwargs):
 
 @app.command()
 def extract_alignments(
-    name: CONFIGS_ENUM = typer.Option(None, "--name", "-n"),
     accelerator: str = typer.Option("auto", "--accelerator", "-a"),
     devices: str = typer.Option("auto", "--devices", "-d"),
     model_path: Path = typer.Option(
@@ -90,15 +81,7 @@ def extract_alignments(
 
     from .utils import create_textgrid, extract_durations_for_item
 
-    if config_path:
-        config = DFAlignerConfig.load_config_from_path(config_path)
-    elif name:
-        config = DFAlignerConfig.load_config_from_path(CONFIGS[name.value])
-    else:
-        logger.error(
-            "You must either choose a <NAME> of a preconfigured dataset, or provide a <CONFIG_PATH> to a preprocessing configuration file."
-        )
-        exit()
+    config = DFAlignerConfig.load_config_from_path(config_path)
 
     config = update_config_from_cli_args(config_args, config)
 

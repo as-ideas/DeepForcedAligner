@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 
 from everyvoice.config.preprocessing_config import PreprocessingConfig
 from everyvoice.config.shared_types import (
@@ -11,7 +11,7 @@ from everyvoice.config.shared_types import (
     PartialConfigModel,
 )
 from everyvoice.config.text_config import TextConfig
-from everyvoice.utils import load_config_from_json_or_yaml_path, return_configs_from_dir
+from everyvoice.utils import load_config_from_json_or_yaml_path
 from pydantic import Field
 
 
@@ -45,7 +45,3 @@ class DFAlignerConfig(PartialConfigModel):
         """Load a config from a path"""
         config = load_config_from_json_or_yaml_path(path)
         return DFAlignerConfig(**config)
-
-
-CONFIG_DIR = Path(__file__).parent
-CONFIGS: Dict[str, Path] = return_configs_from_dir(CONFIG_DIR)
