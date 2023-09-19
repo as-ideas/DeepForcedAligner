@@ -64,15 +64,19 @@ def train(**kwargs):
 
 @app.command()
 def extract_alignments(
+    config_file: Path = typer.Argument(
+        ...,
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        help="The path to your model configuration file.",
+    ),
     accelerator: str = typer.Option("auto", "--accelerator", "-a"),
     devices: str = typer.Option("auto", "--devices", "-d"),
     model_path: Path = typer.Option(
         None, "--model", "-m", exists=True, file_okay=True, dir_okay=False
     ),
     config_args: List[str] = typer.Option(None, "--config", "-c"),
-    config_path: Path = typer.Option(
-        None, "--config-path", "-p", exists=True, dir_okay=False, file_okay=True
-    ),
     num_processes: int = typer.Option(None),
     predict: bool = typer.Option(True),
     create_n_textgrids: int = typer.Option(5, "--tg", "--n_textgrids"),
@@ -81,7 +85,7 @@ def extract_alignments(
 
     from .utils import create_textgrid, extract_durations_for_item
 
-    config = DFAlignerConfig.load_config_from_path(config_path)
+    config = DFAlignerConfig.load_config_from_path(config_file)
 
     config = update_config_from_cli_args(config_args, config)
 
