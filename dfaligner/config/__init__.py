@@ -8,11 +8,13 @@ from everyvoice.config.shared_types import (
     AdamWOptimizer,
     BaseTrainingConfig,
     ConfigModel,
+    PartialLoadConfig,
+    init_context,
 )
 from everyvoice.config.text_config import TextConfig
 from everyvoice.config.utils import load_partials
 from everyvoice.utils import load_config_from_json_or_yaml_path
-from pydantic import Field, FilePath, model_validator
+from pydantic import Field, FilePath, ValidationInfo, model_validator
 
 
 class DFAlignerExtractionMethod(Enum):
@@ -34,7 +36,8 @@ class DFAlignerTrainingConfig(BaseTrainingConfig):
     extraction_method: DFAlignerExtractionMethod = DFAlignerExtractionMethod.dijkstra
 
 
-class DFAlignerConfig(ConfigModel):
+class DFAlignerConfig(PartialLoadConfig):
+    # TODO FastSpeech2Config and DFAlignerConfig are almost identical.
     model: DFAlignerModelConfig = Field(default_factory=DFAlignerModelConfig)
     path_to_model_config_file: Optional[FilePath] = None
 
@@ -47,12 +50,21 @@ class DFAlignerConfig(ConfigModel):
     text: TextConfig = Field(default_factory=TextConfig)
     path_to_text_config_file: Optional[FilePath] = None
 
-    @model_validator(mode="before")
-    def load_partials(self):
-        return load_partials(self, ["model", "training", "preprocessing", "text"])
+    @model_validator(mode="before")  # type: ignore
+    def load_partials(self, info: ValidationInfo):
+        config_path = (
+            info.context.get("config_path", None) if info.context is not None else None
+        )
+        return load_partials(
+            self,
+                ("model", "training", "preprocessing", "text"),
+                config_path=config_path,
+                )
 
     @staticmethod
     def load_config_from_path(path: Path) -> "DFAlignerConfig":
         """Load a config from a path"""
         config = load_config_from_json_or_yaml_path(path)
-        return DFAlignerConfig(**config)
+        with init_context({"config_path": path}):
+            config = DFAlignerConfig(**config)
+        return config
