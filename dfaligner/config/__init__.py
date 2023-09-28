@@ -57,9 +57,9 @@ class DFAlignerConfig(PartialLoadConfig):
         )
         return load_partials(
             self,
-                ("model", "training", "preprocessing", "text"),
-                config_path=config_path,
-                )
+            ("model", "training", "preprocessing", "text"),
+            config_path=config_path,
+        )
 
     @staticmethod
     def load_config_from_path(path: Path) -> "DFAlignerConfig":
