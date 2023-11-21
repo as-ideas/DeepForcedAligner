@@ -46,7 +46,7 @@ class AlignerDataModule(pl.LightningDataModule):
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            pin_memory=True,
+            pin_memory=False,
             sampler=self.train_sampler,
             collate_fn=collate_dataset,
             drop_last=True,
@@ -56,7 +56,7 @@ class AlignerDataModule(pl.LightningDataModule):
         return DataLoader(
             self.val_dataset,
             batch_size=1,
-            pin_memory=True,
+            pin_memory=False,
             sampler=self.val_sampler,
             collate_fn=collate_dataset,
             drop_last=True,
@@ -66,7 +66,7 @@ class AlignerDataModule(pl.LightningDataModule):
         return DataLoader(
             AlignerDataset(self.train_dataset + self.val_dataset, self.config),
             batch_size=self.batch_size,
-            pin_memory=True,
+            pin_memory=False,
             collate_fn=collate_dataset,
             drop_last=True,
         )
