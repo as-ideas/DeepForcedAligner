@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from everyvoice.config.preprocessing_config import PreprocessingConfig
 from everyvoice.config.shared_types import (
@@ -23,35 +23,58 @@ class DFAlignerExtractionMethod(Enum):
 
 
 class DFAlignerModelConfig(ConfigModel):
-    lstm_dim: int = 512
-    conv_dim: int = 512
+    lstm_dim: int = Field(
+        512, description="The number of dimensions in the LSTM layers."
+    )
+    conv_dim: int = Field(
+        512, description="The number of dimensions in the convolutional layers."
+    )
 
 
 class DFAlignerTrainingConfig(BaseTrainingConfig):
     optimizer: Union[AdamOptimizer, AdamWOptimizer] = Field(
-        default_factory=AdamWOptimizer
+        default_factory=AdamWOptimizer,  # type: ignore
+        description="Optimizer configuration settings.",
     )
-    binned_sampler: bool = True
-    plot_steps: int = 1000
-    extraction_method: DFAlignerExtractionMethod = DFAlignerExtractionMethod.dijkstra
+    binned_sampler: bool = Field(True, description="Use a binned length sampler")
+    plot_steps: int = Field(1000, description="The maximum number of steps to plot")
+    extraction_method: DFAlignerExtractionMethod = Field(
+        DFAlignerExtractionMethod.dijkstra,
+        description="The alignment extraction algorithm to use. 'beam' will be quicker but possibly less accurate than 'dijkstra'",
+    )
 
 
 class DFAlignerConfig(PartialLoadConfig):
     # TODO FastSpeech2Config and DFAlignerConfig are almost identical.
-    model: DFAlignerModelConfig = Field(default_factory=DFAlignerModelConfig)
-    path_to_model_config_file: Optional[FilePath] = None
+    model: DFAlignerModelConfig = Field(
+        default_factory=DFAlignerModelConfig,  # type: ignore
+        description="The model configuration settings.",
+    )
+    path_to_model_config_file: Optional[FilePath] = Field(
+        None, description="The path of a preprocessing configuration file."
+    )
 
-    training: DFAlignerTrainingConfig = Field(default_factory=DFAlignerTrainingConfig)
-    path_to_training_config_file: Optional[FilePath] = None
+    training: DFAlignerTrainingConfig = Field(
+        default_factory=DFAlignerTrainingConfig,  # type: ignore
+        description="The training configuration hyperparameters.",
+    )
+    path_to_training_config_file: Optional[FilePath] = Field(
+        None, description="The path of a preprocessing configuration file."
+    )
 
-    preprocessing: PreprocessingConfig = Field(default_factory=PreprocessingConfig)
-    path_to_preprocessing_config_file: Optional[FilePath] = None
+    preprocessing: PreprocessingConfig = Field(
+        default_factory=PreprocessingConfig,  # type: ignore
+        description="The preprocessing configuration, including information about audio settings.",
+    )
+    path_to_preprocessing_config_file: Optional[FilePath] = Field(
+        None, description="The path of a preprocessing configuration file."
+    )
 
     text: TextConfig = Field(default_factory=TextConfig)
     path_to_text_config_file: Optional[FilePath] = None
 
     @model_validator(mode="before")  # type: ignore
-    def load_partials(self, info: ValidationInfo):
+    def load_partials(self: Dict[Any, Any], info: ValidationInfo):
         config_path = (
             info.context.get("config_path", None) if info.context is not None else None
         )

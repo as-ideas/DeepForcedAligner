@@ -39,7 +39,7 @@ def preprocess(
     from everyvoice.base_cli.helpers import preprocess_base_command
 
     preprocess_base_command(
-        model_config=DFAlignerConfig,
+        model_config=DFAlignerConfig,  # type: ignore
         steps=[step.name for step in steps],
         **kwargs,
     )
@@ -137,7 +137,7 @@ def extract_alignments(
             trainer.predict(model, dataloaders=data)
         else:
             trainer.predict(dataloaders=data)
-    sep = config.preprocessing.value_separator
+    SEP = "--"
     tg_processed = 0
     text_processor = TextProcessor(config)
     for item in tqdm(
@@ -151,7 +151,7 @@ def extract_alignments(
         pred = np.load(
             save_dir
             / "duration"
-            / sep.join([basename, speaker, language, "duration.npy"])
+            / SEP.join([basename, speaker, language, "duration.npy"])
         )
         item, durations = extract_durations_for_item(
             item,
@@ -168,7 +168,7 @@ def extract_alignments(
             create_textgrid(
                 save_dir
                 / "text_grid"
-                / sep.join([basename, speaker, language, "duration.TextGrid"]),
+                / SEP.join([basename, speaker, language, "duration.TextGrid"]),
                 text_processor.token_sequence_to_text_sequence(tokens.tolist()),
                 durations,
                 hop_size=config.preprocessing.audio.fft_hop_size,
@@ -179,7 +179,7 @@ def extract_alignments(
             torch.tensor(durations).long(),
             save_dir
             / "duration"
-            / sep.join([basename, speaker, language, "duration.pt"]),
+            / SEP.join([basename, speaker, language, "duration.pt"]),
         )
 
 
