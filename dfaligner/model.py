@@ -42,7 +42,7 @@ class Aligner(pl.LightningModule):
         super().__init__()
         self.config = config
         self.preprocessed_dir = Path(self.config.preprocessing.save_dir)
-        self.sep = self.config.preprocessing.value_separator
+        self.sep = "--"
         self.text_processor = TextProcessor(config)
         conv_dim = self.config.model.conv_dim
         lstm_dim = self.config.model.lstm_dim
@@ -94,7 +94,7 @@ class Aligner(pl.LightningModule):
 
     def predict_step(self, batch, batch_idx):
         save_dir = Path(self.config.preprocessing.save_dir)
-        sep = self.config.preprocessing.value_separator
+        sep = "--"
         tokens = batch["tokens"]
         mel = batch["mel"]
         mel_len = batch["mel_len"]
