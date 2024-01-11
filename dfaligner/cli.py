@@ -39,7 +39,7 @@ def preprocess(
     from everyvoice.base_cli.helpers import preprocess_base_command
 
     preprocess_base_command(
-        model_config=DFAlignerConfig,  # type: ignore
+        model_config=DFAlignerConfig,
         steps=[step.name for step in steps],
         **kwargs,
     )

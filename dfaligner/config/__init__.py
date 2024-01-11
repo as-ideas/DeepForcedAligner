@@ -33,7 +33,7 @@ class DFAlignerModelConfig(ConfigModel):
 
 class DFAlignerTrainingConfig(BaseTrainingConfig):
     optimizer: Union[AdamOptimizer, AdamWOptimizer] = Field(
-        default_factory=AdamWOptimizer,  # type: ignore
+        default_factory=AdamWOptimizer,
         description="Optimizer configuration settings.",
     )
     binned_sampler: bool = Field(True, description="Use a binned length sampler")
@@ -47,7 +47,7 @@ class DFAlignerTrainingConfig(BaseTrainingConfig):
 class DFAlignerConfig(PartialLoadConfig):
     # TODO FastSpeech2Config and DFAlignerConfig are almost identical.
     model: DFAlignerModelConfig = Field(
-        default_factory=DFAlignerModelConfig,  # type: ignore
+        default_factory=DFAlignerModelConfig,
         description="The model configuration settings.",
     )
     path_to_model_config_file: Optional[FilePath] = Field(
@@ -55,7 +55,7 @@ class DFAlignerConfig(PartialLoadConfig):
     )
 
     training: DFAlignerTrainingConfig = Field(
-        default_factory=DFAlignerTrainingConfig,  # type: ignore
+        default_factory=DFAlignerTrainingConfig,
         description="The training configuration hyperparameters.",
     )
     path_to_training_config_file: Optional[FilePath] = Field(
@@ -63,7 +63,7 @@ class DFAlignerConfig(PartialLoadConfig):
     )
 
     preprocessing: PreprocessingConfig = Field(
-        default_factory=PreprocessingConfig,  # type: ignore
+        default_factory=PreprocessingConfig,
         description="The preprocessing configuration, including information about audio settings.",
     )
     path_to_preprocessing_config_file: Optional[FilePath] = Field(
