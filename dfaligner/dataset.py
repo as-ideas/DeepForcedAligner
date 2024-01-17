@@ -7,7 +7,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from everyvoice.text import TextProcessor
-from everyvoice.utils import check_dataset_size
+from everyvoice.utils import check_dataset_size, generic_dict_loader
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Dataset
@@ -100,12 +100,8 @@ class AlignerDataModule(pl.LightningDataModule):
 
     def load_dataset(self):
         # Can use same filelist as for feature prediction
-        self.train_dataset = self.config.training.filelist_loader(
-            self.config.training.training_filelist
-        )
-        self.val_dataset = self.config.training.filelist_loader(
-            self.config.training.validation_filelist
-        )
+        self.train_dataset = generic_dict_loader(self.config.training.training_filelist)
+        self.val_dataset = generic_dict_loader(self.config.training.validation_filelist)
 
 
 class AlignerDataset(Dataset):
