@@ -22,7 +22,7 @@ with open(path.join(this_directory, "requirements.txt"), encoding="utf8") as f:
 
 setup(
     name="dfaligner",
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     version=VERSION,
     author="Aidan Pine",
     author_email="hello@aidanpine.ca",
