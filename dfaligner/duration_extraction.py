@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
@@ -89,7 +87,7 @@ def extract_durations_with_dijkstra(tokens: np.ndarray, pred: np.ndarray) -> np.
 
 def extract_durations_beam(
     tokens: np.ndarray, pred: np.ndarray, k: int
-) -> Tuple[List[np.ndarray], List[List[np.ndarray]]]:
+) -> tuple[list[np.ndarray], list[list[np.ndarray]]]:
     data = pred[:, tokens]
     sequences = [[[0], -np.log(data[0, 0])]]  # always start on first position
     for row in data[1:]:

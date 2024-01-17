@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional
 
 from everyvoice.config.preprocessing_config import PreprocessingConfig
 from everyvoice.config.shared_types import (
@@ -32,7 +32,7 @@ class DFAlignerModelConfig(ConfigModel):
 
 
 class DFAlignerTrainingConfig(BaseTrainingConfig):
-    optimizer: Union[AdamOptimizer, AdamWOptimizer] = Field(
+    optimizer: AdamOptimizer | AdamWOptimizer = Field(
         default_factory=AdamWOptimizer,
         description="Optimizer configuration settings.",
     )
@@ -74,7 +74,7 @@ class DFAlignerConfig(PartialLoadConfig):
     path_to_text_config_file: Optional[FilePath] = None
 
     @model_validator(mode="before")  # type: ignore
-    def load_partials(self: Dict[Any, Any], info: ValidationInfo):
+    def load_partials(self: dict[Any, Any], info: ValidationInfo):
         config_path = (
             info.context.get("config_path", None) if info.context is not None else None
         )

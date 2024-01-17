@@ -1,6 +1,5 @@
 from enum import Enum
 from pathlib import Path
-from typing import List
 
 import typer
 from everyvoice.base_cli.interfaces import (
@@ -28,7 +27,7 @@ class PreprocessCategories(str, Enum):
 @app.command()
 @merge_args(preprocess_base_command_interface)
 def preprocess(
-    steps: List[PreprocessCategories] = typer.Option(
+    steps: list[PreprocessCategories] = typer.Option(
         [cat.value for cat in PreprocessCategories],
         "-s",
         "--steps",
@@ -76,7 +75,7 @@ def extract_alignments(
     model_path: Path = typer.Option(
         None, "--model", "-m", exists=True, file_okay=True, dir_okay=False
     ),
-    config_args: List[str] = typer.Option(None, "--config", "-c"),
+    config_args: list[str] = typer.Option(None, "--config", "-c"),
     num_processes: int = typer.Option(None),
     predict: bool = typer.Option(True),
     create_n_textgrids: int = typer.Option(5, "--tg", "--n_textgrids"),

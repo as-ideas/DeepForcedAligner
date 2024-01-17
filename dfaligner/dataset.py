@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from random import Random
-from typing import Dict, List, Optional, Union
+from typing import Optional
 
 import numpy as np
 import pytorch_lightning as pl
@@ -180,7 +180,7 @@ class BinnedLengthSampler(Sampler):
         return len(self.idx)
 
 
-def collate_dataset(batch: List[dict]) -> Dict[str, Union[torch.Tensor, List[str]]]:
+def collate_dataset(batch: list[dict]) -> dict[str, torch.Tensor | list[str]]:
     tokens: torch.Tensor = pad_sequence(
         [b["tokens"] for b in batch], batch_first=True, padding_value=0
     )

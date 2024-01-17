@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import yaml
 from pympi.Praat import TextGrid
@@ -21,7 +21,7 @@ def create_textgrid(save_path, tokens, durations, hop_size, sample_rate):
     tg.to_file(save_path)
 
 
-def read_metafile(path: str) -> Dict[str, str]:
+def read_metafile(path: str) -> dict[str, str]:
     text_dict = {}
     with open(path, encoding="utf-8") as f:
         for line in f:
@@ -31,27 +31,27 @@ def read_metafile(path: str) -> Dict[str, str]:
     return text_dict
 
 
-def read_config(path: str) -> Dict[str, Any]:
+def read_config(path: str) -> dict[str, Any]:
     with open(path, "r") as stream:
         config = yaml.load(stream, Loader=yaml.FullLoader)
     return config
 
 
-def save_config(config: Dict[str, Any], path: str) -> None:
+def save_config(config: dict[str, Any], path: str) -> None:
     with open(path, "w+", encoding="utf-8") as stream:
         yaml.dump(config, stream, default_flow_style=False)
 
 
-def get_files(path: str, extension=".wav") -> List[Path]:
+def get_files(path: str, extension=".wav") -> list[Path]:
     return list(Path(path).expanduser().resolve().rglob(f"*{extension}"))
 
 
-def pickle_binary(data: object, file: Union[str, Path]) -> None:
+def pickle_binary(data: object, file: str | Path) -> None:
     with open(str(file), "wb") as f:
         pickle.dump(data, f)
 
 
-def unpickle_binary(file: Union[str, Path]) -> Any:
+def unpickle_binary(file: str | Path) -> Any:
     with open(str(file), "rb") as f:
         return pickle.load(f)
 
