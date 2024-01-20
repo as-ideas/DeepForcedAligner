@@ -5,6 +5,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from everyvoice.model.aligner.config import AlignerConfig
 from everyvoice.text import TextProcessor
 
 from .config import DFAlignerConfig
@@ -80,6 +81,29 @@ class Aligner(pl.LightningModule):
         x, _ = self.rnn(x)
         x = self.lin(x)
         return x
+
+    def on_load_checkpoint(self, checkpoint):
+        """Deserialize the checkpoint hyperparameters.
+        Note, this shouldn't fail on different versions of pydantic anymore,
+        but it will fail on breaking changes to the config. We should catch those exceptions
+        and handle them appropriately."""
+        self.config = AlignerConfig(**checkpoint["hyper_parameters"]["config"])
+
+    def on_save_checkpoint(self, checkpoint):
+        """Serialize the checkpoint hyperparameters"""
+        checkpoint["hyper_parameters"]["config"] = self.config.model_dump(
+            mode="json",
+            exclude={
+                "path_to_preprocessing_config_file": True,
+                "path_to_text_config_file": True,
+                "path_to_audio_config_file": True,
+                "path_to_training_config_file": True,
+                "path_to_model_config_file": True,
+                "path_to_aligner_config_file": True,
+                "path_to_vocoder_config_file": True,
+                "path_to_feature_prediction_config_file": True,
+            },
+        )
 
     def configure_optimizers(self):
         optim = torch.optim.AdamW(
