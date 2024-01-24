@@ -38,15 +38,15 @@ class BatchNormConv(nn.Module):
 class Aligner(pl.LightningModule):
     def __init__(
         self,
-        config: DFAlignerConfig,
+        config: dict | DFAlignerConfig,
     ) -> None:
         super().__init__()
-        if not isinstance(config, AlignerConfig):
+        if isinstance(dict, AlignerConfig):
             config = AlignerConfig(**config)
-        self.config = config
+        self.config: AlignerConfig = config  # type: ignore
         self.preprocessed_dir = Path(self.config.preprocessing.save_dir)
         self.sep = "--"
-        self.text_processor = TextProcessor(config)
+        self.text_processor = TextProcessor(self.config)
         conv_dim = self.config.model.conv_dim
         lstm_dim = self.config.model.lstm_dim
         n_mels = self.config.preprocessing.audio.n_mels
