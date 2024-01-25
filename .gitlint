@@ -1,0 +1,14 @@
+[general]
+# Enable conventional commit linting
+contrib=contrib-title-conventional-commits
+
+# We don't require a body, just a title, even though a body is also a good idea
+ignore=body-is-missing
+
+[contrib-title-conventional-commits]
+# Specify allowed commit types. For details see: https://www.conventionalcommits.org/
+# Use type pXYZ for partial work towards a commit of type XYZ that won't show up in the
+# release logs.  Make sure the merge commit or the commit that completes the work has
+# type XYZ:, though, and consider squashing the partial commits if that makes sense.
+types = fix, feat, chore, docs, style, refactor, perf, test, revert, ci, build,
+        pfeat, pfix, pdoc, ptest, prefactor
