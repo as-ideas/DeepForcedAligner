@@ -14,6 +14,7 @@ from .config import DFAlignerConfig
 
 app = typer.Typer(
     pretty_exceptions_show_locals=False,
+    context_settings={"help_option_names": ["-h", "--help"]},
     help="A fork of the DeepForcedAligner project implemented in PyTorch Lightning",
 )
 
