@@ -6,9 +6,9 @@ from everyvoice.config.preprocessing_config import PreprocessingConfig
 from everyvoice.config.shared_types import (
     AdamOptimizer,
     AdamWOptimizer,
+    BaseModelWithContact,
     BaseTrainingConfig,
     ConfigModel,
-    PartialLoadConfig,
     init_context,
 )
 from everyvoice.config.text_config import TextConfig
@@ -44,7 +44,7 @@ class DFAlignerTrainingConfig(BaseTrainingConfig):
     )
 
 
-class DFAlignerConfig(PartialLoadConfig):
+class DFAlignerConfig(BaseModelWithContact):
     # TODO FastSpeech2Config and DFAlignerConfig are almost identical.
     model: DFAlignerModelConfig = Field(
         default_factory=DFAlignerModelConfig,
