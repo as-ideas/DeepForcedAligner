@@ -3,6 +3,7 @@ from pathlib import Path
 
 import typer
 from everyvoice.base_cli.interfaces import (
+    complete_path,
     preprocess_base_command_interface,
     train_base_command_interface,
 )
@@ -70,11 +71,18 @@ def extract_alignments(
         dir_okay=False,
         file_okay=True,
         help="The path to your model configuration file.",
+        autocompletion=complete_path,
     ),
     accelerator: str = typer.Option("auto", "--accelerator", "-a"),
     devices: str = typer.Option("auto", "--devices", "-d"),
     model_path: Path = typer.Option(
-        None, "--model", "-m", exists=True, file_okay=True, dir_okay=False
+        None,
+        "--model",
+        "-m",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        autocompletion=complete_path,
     ),
     config_args: list[str] = typer.Option(None, "--config", "-c"),
     num_processes: int = typer.Option(None),
