@@ -93,6 +93,32 @@ You can pass updates to the configuration through the command line like so:
 
 To extract alignments from the model run `dfaligner extract-alignments base`.
 
+## Contributing
+
+Feel free to dive in!
+ - [Open an issue](https://github.com/roedoejet/EveryVoice/issues/new) in the main EveryVoice repo with the tag `[DeepForceAligner]`,
+ - submit PRs to this repo with a corresponding submodule update PR to [EveryVoice](https://github.com/roedoejet/EveryVoice).
+
+This repo follows the [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) Code of Conduct.
+
+You can install our standard Git hooks by running these commands in your sandbox:
+
+```sh
+pip install -r requirements.dev.txt
+pre-commit install
+gitlint install-hook
+```
+
+Have a look at [Contributing.md](https://github.com/roedoejet/EveryVoice/blob/main/Contributing.md)
+for the full details on the Conventional Commit messages we prefer, our code
+formatting conventions, and our Git hooks.
+
+You can then interactively install the package by running the following command from the project root:
+
+```sh
+pip install -e .
+```
+
 
 ## Acknowledgements
 
