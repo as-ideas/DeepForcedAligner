@@ -59,6 +59,7 @@ def train(**kwargs):
         model=Aligner,
         data_module=AlignerDataModule,
         monitor="validation/loss",
+        gradient_clip_val=1.0,
         **kwargs,
     )
 

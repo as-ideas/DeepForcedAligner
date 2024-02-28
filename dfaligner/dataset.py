@@ -85,13 +85,13 @@ class AlignerDataModule(pl.LightningDataModule):
                 mel_lens=self.train_mel_lens,
                 batch_size=self.batch_size,
                 bin_size=self.batch_size * 3,
-                seed=self.config.training.seed,
+                seed=self.config.preprocessing.dataset_split_seed,
             )
             self.val_sampler = BinnedLengthSampler(
                 mel_lens=self.val_mel_lens,
                 batch_size=self.batch_size,
                 bin_size=self.batch_size * 3,
-                seed=self.config.training.seed,
+                seed=self.config.preprocessing.dataset_split_seed,
             )
 
         # save it to disk
