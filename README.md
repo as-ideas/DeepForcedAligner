@@ -62,36 +62,25 @@ $ pip install -e .
 
 ### Configuration
 
-You can change the base configuration in `dfaligner/config/base.yaml`.
-
-You can also create a new config.yaml file and add it to the `CONFIGS` object in `dfaligner/config/__init__.py` and then use that key.
-
-For example if you created a new config file at `myconfig.yaml` then you would update the `CONFIGS` object like so:
-
-```python
-CONFIGS: Dict[str, Path] = {
-    "base": Path(__file__).parent / "base.yaml",
-    "myconfig": Path(__file__).parent / "myconfig.yaml",
-}
-```
-
-You can then use the `myconfig` config with any of the following commands like `dfaligner train myconfig` or `dfaligner preprocess myconfig -d mel -d audio -d text` etc...
+It is recommended to install `everyvoice` and run `everyvoice new-project` to create your configuration. After running the command, a `config` folder will be created with an `everyvoice-aligner.yaml` configuration file.
 
 ### Preprocessing
 
-Preprocess by running: `dfaligner preprocess base -d mel -d audio -d text` to generate the Mel spectrograms and audio and text representations required for the model using the base configuration.
+Preprocess by running: `dfaligner preprocess config/everyvoice-aligner.yaml` to generate the Mel spectrograms and audio and text representations required for the model using the base configuration.
+
+To run only a subset of the steps, use `dfaligner preprocess config/everyvoice-aligner.yaml -s text` to only run text preprocessing for example
 
 ### Training
 
-Train by running `dfaligner train base` to use the base configuration.
+Train by running `dfaligner train config/everyvoice-aligner.yaml` to use the base configuration.
 
 You can pass updates to the configuration through the command line like so:
 
-`dfaligner train base --config preprocessing.save_dir=/my/new/path --config training.batch_size=16`
+`dfaligner train config/everyvoice-aligner.yaml -c preprocessing.save_dir=/my/new/path -c training.batch_size=16`
 
 ### Alignment Extraction
 
-To extract alignments from the model run `dfaligner extract-alignments base`.
+To extract alignments from the model run `dfaligner extract-alignments config/everyvoice-aligner.yaml`.
 
 ## Contributing
 
