@@ -41,7 +41,7 @@ class Aligner(pl.LightningModule):
         config: dict | DFAlignerConfig,
     ) -> None:
         super().__init__()
-        if isinstance(dict, AlignerConfig):
+        if isinstance(config, dict):
             config = AlignerConfig(**config)
         self.config: AlignerConfig = config  # type: ignore
         self.preprocessed_dir = Path(self.config.preprocessing.save_dir)

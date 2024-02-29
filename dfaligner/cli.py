@@ -132,7 +132,16 @@ def extract_alignments(
     save_dir = Path(config.preprocessing.save_dir)
     (save_dir / "duration").mkdir(exist_ok=True, parents=True)
     if predict:
-        tensorboard_logger = TensorBoardLogger(**(config.training.logger.model_dump()))
+        tensorboard_logger = TensorBoardLogger(
+            **{
+                **(
+                    config.training.logger.model_dump(
+                        exclude={"sub_dir_callable": True}
+                    )
+                ),
+                **{"sub_dir": config.training.logger.sub_dir},
+            }
+        )
         trainer = Trainer(
             accelerator=accelerator, devices=devices, logger=tensorboard_logger
         )
