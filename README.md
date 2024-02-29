@@ -80,7 +80,7 @@ You can pass updates to the configuration through the command line like so:
 
 ### Alignment Extraction
 
-To extract alignments from the model run `dfaligner extract-alignments config/everyvoice-aligner.yaml`.
+To extract alignments from the model run `dfaligner extract-alignments config/everyvoice-aligner.yaml --model path/to/model.ckpt`.
 
 ## Contributing
 
